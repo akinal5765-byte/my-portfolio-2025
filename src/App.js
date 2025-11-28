@@ -34,7 +34,8 @@ import {
   Cpu,
   Brain,
   Zap,
-  Clock, // Added Clock icon
+  Clock,
+  Aperture, // Added for the logo
 } from "lucide-react";
 
 /* Custom CSS */
@@ -916,27 +917,30 @@ export default function App() {
 
       {/* ... Navbar (Capsule Style) ... */}
       <nav
-        className={`fixed z-50 transition-all duration-500 ease-out ${
+        className={`fixed z-50 transition-all duration-500 ease-out left-1/2 -translate-x-1/2 ${
           scrolled
-            ? "top-4 left-1/2 -translate-x-1/2 w-[90%] max-w-[850px] h-14 rounded-full liquid-control-base px-6" /* Used unified liquid-control-base */
-            : "top-0 left-0 w-full h-24 bg-transparent px-6"
+            ? "top-4 w-[90%] max-w-[850px] h-14 rounded-full liquid-control-base px-6" /* Used unified liquid-control-base */
+            : "top-0 w-full h-24 bg-transparent px-6"
         }`}
       >
         <div
           className={`h-full flex justify-between items-center ${
-            scrolled ? "w-full" : "max-w-[1024px] mx-auto"
+            scrolled ? "w-full" : "max-w-[1024px] mx-auto w-full"
           }`}
         >
           <a href="#" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-[#1d1d1f] text-white flex items-center justify-center font-bold text-sm shadow-md group-hover:scale-105 transition-transform duration-300">
-              L
+            {/* MODIFIED: Used a sleek Aperture icon for a minimal logo feel */}
+            <div className="w-8 h-8 rounded-lg bg-[#1d1d1f] text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300">
+              <Aperture size={18} strokeWidth={2.5} />
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-bold leading-none tracking-tight text-[#1d1d1f]">
-                LI YUKUN
+            <div className="flex flex-col justify-center h-full">
+              {/* MODIFIED: Changed from Name to PORTFOLIO */}
+              <span className="text-sm font-bold leading-none tracking-tight text-[#1d1d1f] uppercase">
+                PORTFOLIO
               </span>
+              {/* MODIFIED: Changed subtitle to VISUAL DESIGN */}
               <span className="text-[10px] text-[#86868b] leading-none mt-0.5 tracking-wider uppercase font-semibold">
-                Portfolio
+                VISUAL DESIGN
               </span>
             </div>
           </a>
@@ -1095,12 +1099,13 @@ export default function App() {
               <span className="text-[#86868b]">感性触达人心。</span>
             </h1>
 
-            {/* Subtitle / Introduction */}
+            {/* Subtitle / Introduction - MODIFIED */}
             <p
               className="hero-text-entry text-lg md:text-xl font-medium text-[#1d1d1f]/80 mb-8 leading-relaxed tracking-tight w-full md:whitespace-nowrap"
               style={{ animationDelay: textEntryDelay.subtitle }}
             >
-              我是李余坤，一名视觉设计师。
+              {/* REMOVED: Name, ADDED: Professional Title */}
+              视觉设计师 / 摄影创作者
               <br />
               <span className="text-[#86868b] font-normal text-base">
                 在逻辑与美学之间寻找平衡，构建清晰且有温度的视觉叙事。
@@ -1528,6 +1533,7 @@ export default function App() {
           </div>
           <div className="max-w-2xl mt-16 text-[10px] uppercase font-bold text-[#86868b] flex items-center gap-2 tracking-widest opacity-60">
             <MapPin size={10} />
+            {/* MODIFIED: Used your English name in copyright */}
             <span>Yunnan, Kunming</span>
             <span className="ml-2">© 2025 Li Yukun</span>
           </div>
