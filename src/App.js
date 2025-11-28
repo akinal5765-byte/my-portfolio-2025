@@ -552,10 +552,10 @@ const PORTFOLIO_ITEMS = [
     thought:
       "通过自然光创造画面的层次感，利用大光圈、深色背景将主体清晰、安静地从环境中分离。在构图上，追求画面简洁，将焦点留给主体形态和光影变化，传达一种内敛而有力量的情绪。",
     coverImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/DSC08082.jpg?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/DSC08082.jpg",
     mediaAspect: "aspect-[3/4]",
     longImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/%E9%95%BF%E5%9B%BE.jpg?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE.jpg",
     imagePosition: "object-center",
   },
   {
@@ -574,10 +574,10 @@ const PORTFOLIO_ITEMS = [
     thought:
       "“重复”是运营设计的大忌。在处理长线周期性活动时，策略是将“时间感”引入视觉语言。通过提取当季代表性元素（如樱花、西瓜、水墨山水）作为视觉符号，在保持品牌识别度的同时，用色彩温度调动用户的情绪感知，实现“月月有新意”的运营目标。",
     coverImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/2025%E5%B9%B44%E6%9C%88%E4%BC%9A%E5%91%98%E6%97%A5%20%E8%BD%AE%E6%92%AD%E5%9B%BE.png?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/2025%E5%B9%B44%E6%9C%88%E4%BC%9A%E5%91%98%E6%97%A5%20%E8%BD%AE%E6%92%AD%E5%9B%BE.png",
     mediaAspect: "aspect-[4/3]", 
     longImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/%E9%95%BF%E5%9B%BE5.jpg?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE5.jpg",
     imagePosition: "object-center",
   },
   {
@@ -596,10 +596,10 @@ const PORTFOLIO_ITEMS = [
     thought:
       "运用深色背景和蓝色光效，营造沉浸的“声学空间”。头图以大尺寸渲染图占据视觉中心，详情页采用模块化布局，理性且高效地传递产品价值。",
     coverImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/%E8%80%B3%E6%9C%BA%E5%A4%B4%E5%9B%BE.jpg?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E8%80%B3%E6%9C%BA%E5%A4%B4%E5%9B%BE.jpg",
     mediaAspect: "aspect-[3/4]",
     longImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/%E8%80%B3%E6%9C%BA%E8%AF%A6%E6%83%85%E9%A1%B5.png?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E8%80%B3%E6%9C%BA%E8%AF%A6%E6%83%85%E9%A1%B5.png",
     imagePosition: "object-center",
   },
   {
@@ -618,10 +618,10 @@ const PORTFOLIO_ITEMS = [
     thought:
       "运用环境光与区域布光的对比，呈现不同材质在真实光影下的细腻质感。通过控制光比与反射，让画面保持留白与平衡，使产品在干净的视觉中自然凸显。",
     coverImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/1-%E5%90%8E%E6%9C%9F%201.png.png?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/1-%E5%90%8E%E6%9C%9F%201.png.png",
     mediaAspect: "aspect-[1/1]",
     longImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/%E9%95%BF%E5%9B%BE2.jpg?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE2.jpg",
     imagePosition: "object-center",
   },
   {
@@ -640,10 +640,10 @@ const PORTFOLIO_ITEMS = [
     thought:
       "捕捉情绪凝固与流动的瞬间，利用大光圈与前景元素创造空间层次和梦幻氛围。在构图上，追求克制留白，将焦点留给人物形态与光影的对话，传达一种内敛而有厚度的叙事感。",
     coverImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/PixPin_2025-11-27_16-26-56.jpg?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-27_16-26-56.jpg",
     mediaAspect: "aspect-[3/4]",
     longImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/%E9%95%BF%E5%9B%BE1.jpg?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE1.jpg",
     imagePosition: "object-center",
   },
   {
@@ -662,10 +662,10 @@ const PORTFOLIO_ITEMS = [
     thought:
       "信息层级：突出活动主题和“三重福利”的利益点。视觉风格：采用喜庆的红色、金色调搭配暗蓝背景，符合中秋国庆节日氛围，结合IP形象（兔子）增加亲和力。交互引导：明确给出扫码立即参与的行动呼吁（CTA），提升转化效率。",
     coverImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/PixPin_2025-11-27_20-26-59.jpg?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-27_20-26-59.jpg",
     mediaAspect: "aspect-[4/3]",
     longImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/%E9%95%BF%E5%9B%BE3.jpg?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE3.jpg",
     imagePosition: "object-center",
   },
   {
@@ -684,9 +684,9 @@ const PORTFOLIO_ITEMS = [
     thought:
       "用清透的天空蓝传达扫码验真的安全感，以暖橙突出积分奖励，在小屏里保持信息清晰，不让促销氛围压过可读性。",
     coverImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/%E6%9C%AC%E9%A6%99%E5%B9%B8%E8%BF%90%E6%95%B0%C2%B7%E6%89%AB%E7%A0%81%E4%BA%AB%E5%A5%BD%E8%BF%90%20%E5%BC%B9%E7%AA%97.png?raw=true", 
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E5%B9%B8%E8%BF%90%E6%95%B0%C2%B7%E6%89%AB%E7%A0%81%E4%BA%AB%E5%A5%BD%E8%BF%90%20%E5%BC%B9%E7%AA%97.png", 
     longImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/%E6%9C%AC%E9%A6%99%E5%B9%B8%E8%BF%90%E6%95%B0%C2%B7%E6%89%AB%E7%A0%81%E4%BA%AB%E5%A5%BD%E8%BF%90%20%E4%B8%BB%E6%B5%B7%E6%8A%A5.png?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E5%B9%B8%E8%BF%90%E6%95%B0%C2%B7%E6%89%AB%E7%A0%81%E4%BA%AB%E5%A5%BD%E8%BF%90%20%E4%B8%BB%E6%B5%B7%E6%8A%A5.png",
     mediaAspect: "aspect-[1/1]", 
     imagePosition: "object-center",
   },
@@ -706,10 +706,10 @@ const PORTFOLIO_ITEMS = [
     thought:
       "面对高密度的功能入口，核心挑战在于“秩序感”的建立。摒弃了以往的列表式堆叠，转而采用栅格化图标与卡片容器，明确划分功能区（工具/活动/挑战）。色彩上，保留品牌红作为强调色，大面积留白以确保长时间使用的视觉舒适性。",
     coverImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/PixPin_2025-11-28_09-01-38.jpg?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-28_09-01-38.jpg",
     mediaAspect: "aspect-[3/4]",
     longImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/Portrait%20_%2053.png?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/Portrait%20_%2053.png",
     imagePosition: "object-top",
   },
   {
@@ -728,10 +728,10 @@ const PORTFOLIO_ITEMS = [
     thought:
       "采用了高光、高饱和、立体化的电商/游戏风格，目的是为了最大化抓人眼球，迅速传达“福利”、“有趣”和“可获得性”，尤其适合在平台内弹窗、轮播图等寸土寸金的位置抢占注意力。",
     coverImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/%E6%9C%AC%E9%A6%99%E4%B8%96%E7%95%8C%20%E7%A7%AF%E5%88%86%E5%8A%A0%E6%B2%B9%E7%AB%99%20%E7%AC%AC%E4%B8%80%E6%9C%9F%20%E8%BD%AE%E6%92%AD%E5%9B%BE.png?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E4%B8%96%E7%95%8C%20%E7%A7%AF%E5%88%86%E5%8A%A0%E6%B2%B9%E7%AB%99%20%E7%AC%AC%E4%B8%80%E6%9C%9F%20%E8%BD%AE%E6%92%AD%E5%9B%BE.png",
     mediaAspect: "aspect-[4/3]",
     longImage:
-      "https://github.com/akinal5765-byte/Portfolio/blob/main/photos/%E9%95%BF%E5%9B%BE4.jpg?raw=true",
+      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE4.jpg",
     imagePosition: "object-center",
   },
 ];
@@ -934,7 +934,7 @@ export default function App() {
             {/* Logo Image */}
             <div className="w-8 h-8 rounded-lg bg-[#1d1d1f] text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300 p-1">
               <img 
-                src="https://github.com/akinal5765-byte/Portfolio/blob/main/photos/logo_wight.png?raw=true" 
+                src="https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/logo_wight.png" 
                 alt="Personal Logo" 
                 className="w-full h-full object-contain" 
                 loading="lazy"
@@ -1042,7 +1042,7 @@ export default function App() {
               <div className="absolute bottom-0 left-0 right-0 h-[85%] bg-white/40 backdrop-blur-xl rounded-[40px] border border-white/60 shadow-[0_30px_60px_-12px_rgba(0,0,0,0.1)] z-0"></div>
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[90%] z-10 flex items-end justify-center">
                 <img
-                  src="https://github.com/akinal5765-byte/Portfolio/blob/main/photos/my-avatar.png?raw=true"
+                  src="https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/my-avatar.png"
                   alt="3D Avatar"
                   className="w-full h-auto object-contain drop-shadow-2xl"
                 />
