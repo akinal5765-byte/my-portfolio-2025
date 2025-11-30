@@ -248,11 +248,11 @@ document.head.appendChild(style);
 
 // --- LIQUID GLASS GLOBAL CONFIG ---
 const LIQUID_PROPS = {
-    glassThickness: 180,
+    glassThickness: 120,
     bezelWidth: 15,
     refractiveIndex: 1.4,
     blur: 3,
-    opacity: 0.3
+    opacity: 0.2
 };
 
 // --- LIQUID GLASS CORE & COMPONENT ---
@@ -331,7 +331,6 @@ function generateDisplacementMap(
             const isTop = y1 < radius;
             const isBottom = y1 >= height - radius;
             
-            // Fixed: Use innerW/innerH which are now correctly initialized
             const x = isLeft ? x1 - radius : (isRight ? x1 - radius - innerW : 0);
             const y = isTop ? y1 - radius : (isBottom ? y1 - radius - innerH : 0);
             
@@ -439,7 +438,9 @@ const LiquidGlass = ({
             el.style.backdropFilter = 'none';
             void el.offsetHeight; 
             el.style.backdropFilter = `url(#${filterId})`;
-            (el.style as any).webkitBackdropFilter = `url(#${filterId})`;
+            
+            // FIX: Use setProperty to avoid compilation error with TypeScript type checking
+            el.style.setProperty('-webkit-backdrop-filter', `url(#${filterId})`);
         };
 
         const observer = new ResizeObserver(updateFilter);
@@ -1403,16 +1404,11 @@ export default function App() {
                     {...LIQUID_PROPS}
                     glassThickness={20}
                     bezelWidth={4}
-                    // Removed glassColor to inherit translucent white body from LIQUID_PROPS.opacity
-                    className="w-12 h-12 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:bg-white/90 transition-all shadow-lg md:shadow-sm text-[#1d1d1f]" // Changed text color to dark
-                    style={{ 
-                        borderRadius: '9999px',
-                        // Adjusted shadow to be generic/neutral to match white glass
-                        border: "1px solid rgba(255, 255, 255, 0.5)",
-                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.8)",
-                    }}
+                    glassColor="rgba(0, 113, 227, 0.9)" // Set Blue Color
+                    className="w-12 h-12 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:bg-white/90 transition-all shadow-lg md:shadow-sm text-[#1d1d1f] ring-1 ring-white/30"
+                    style={{ borderRadius: '9999px' }}
                 >
-                    <X size={20} />
+                    <X size={20} className="text-white" /> {/* Icon White */}
                 </LiquidGlass>
             </button>
 
