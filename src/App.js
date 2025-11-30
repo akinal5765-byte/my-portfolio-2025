@@ -17,7 +17,6 @@ import {
   Check,
   MessageCircle,
   X,
-  XCircle,
   Image as ImageIcon,
   Bot,
   Component,
@@ -30,220 +29,222 @@ import {
   Grid3X3,
 } from "lucide-react";
 import { motion } from 'framer-motion';
-import { clsx, type ClassValue } from 'clsx';
+import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 // --- Utils ---
-function cn(...inputs: ClassValue[]) {
+function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-/* Custom CSS */
-const style = document.createElement("style");
-style.textContent = `
-  @font-face {
-    font-family: 'Alibaba PuHuiTi';
-    src: url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Regular.woff2') format('woff2'),
-         url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Regular.woff') format('woff');
-    font-weight: 400;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'Alibaba PuHuiTi';
-    src: url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Medium.woff2') format('woff2'),
-         url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Medium.woff') format('woff');
-    font-weight: 500;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'Alibaba PuHuiTi';
-    src: url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Bold.woff2') format('woff2'),
-         url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Bold.woff') format('woff');
-    font-weight: 700;
-    font-display: swap;
-  }
+// --- Global Styles (Safety Check) ---
+if (typeof document !== 'undefined') {
+  const style = document.createElement("style");
+  style.textContent = `
+    @font-face {
+      font-family: 'Alibaba PuHuiTi';
+      src: url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Regular.woff2') format('woff2'),
+           url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Regular.woff') format('woff');
+      font-weight: 400;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Alibaba PuHuiTi';
+      src: url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Medium.woff2') format('woff2'),
+           url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Medium.woff') format('woff');
+      font-weight: 500;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Alibaba PuHuiTi';
+      src: url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Bold.woff2') format('woff2'),
+           url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Bold.woff') format('woff');
+      font-weight: 700;
+      font-display: swap;
+    }
 
-  :root {
-    --font-primary: "Alibaba PuHuiTi", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Noto Sans SC", sans-serif;
-  }
+    :root {
+      --font-primary: "Alibaba PuHuiTi", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Noto Sans SC", sans-serif;
+    }
 
-  body {
-    font-family: var(--font-primary);
-    background-color: #f5f5f7;
-    color: #1d1d1f;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
+    body {
+      font-family: var(--font-primary);
+      background-color: #f5f5f7;
+      color: #1d1d1f;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
 
-  .bg-noise {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.03; 
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    transform: translateZ(0);
-  }
+    .bg-noise {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.03; 
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      transform: translateZ(0);
+    }
 
-  @keyframes blob {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(0px, 0px) scale(1); }
-  }
-  
-  .animate-blob {
-    animation: blob 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
-    transform: translateZ(0);
-  }
+    @keyframes blob {
+      0% { transform: translate(0px, 0px) scale(1); }
+      33% { transform: translate(30px, -50px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+      100% { transform: translate(0px, 0px) scale(1); }
+    }
+    
+    .animate-blob {
+      animation: blob 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+      transform: translateZ(0);
+    }
 
-  @keyframes fade-in-up {
-    0% { opacity: 0; transform: translateY(15px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-  .animate-fade-in-up { animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fade-in-up {
+      0% { opacity: 0; transform: translateY(15px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up { animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-  @keyframes fade-in {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-  }
-  .animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
+    @keyframes fade-in {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    .animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
 
-  @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-6px); }
-    100% { transform: translateY(0px); }
-  }
-  .animate-float-delay {
-    animation: float 3.5s ease-in-out infinite;
-    animation-delay: 1s;
-    will-change: transform;
-  }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+      100% { transform: translateY(0px); }
+    }
+    .animate-float-delay {
+      animation: float 3.5s ease-in-out infinite;
+      animation-delay: 1s;
+      will-change: transform;
+    }
 
-  @keyframes glow-breathe {
-    0% { opacity: 0.8; transform: scale(1.5); }
-    50% { opacity: 1; transform: scale(1.55); }
-    100% { opacity: 0.8; transform: scale(1.5); }
-  }
-  .animate-glow-breathe {
-    animation: glow-breathe 8s ease-in-out infinite;
-    will-change: transform, opacity;
-  }
+    @keyframes glow-breathe {
+      0% { opacity: 0.8; transform: scale(1.5); }
+      50% { opacity: 1; transform: scale(1.55); }
+      100% { opacity: 0.8; transform: scale(1.5); }
+    }
+    .animate-glow-breathe {
+      animation: glow-breathe 8s ease-in-out infinite;
+      will-change: transform, opacity;
+    }
 
-  @keyframes shimmer-subtle {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-  .group:hover .animate-shimmer-subtle {
-    animation: shimmer-subtle 1.5s infinite;
-  }
+    @keyframes shimmer-subtle {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .group:hover .animate-shimmer-subtle {
+      animation: shimmer-subtle 1.5s infinite;
+    }
 
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  .reveal-wrapper {
-    opacity: 0;
-    transform: translateY(30px) scale(0.99);
-    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: opacity, transform;
-  }
-  .reveal-wrapper.is-visible {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  
-  .staggered-entry {
+    .reveal-wrapper {
       opacity: 0;
-      transform: translateY(15px);
-      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateY(30px) scale(0.99);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
       will-change: opacity, transform;
-  }
-  .reveal-wrapper.is-visible .staggered-entry {
+    }
+    .reveal-wrapper.is-visible {
       opacity: 1;
-      transform: translateY(0);
-  }
+      transform: translateY(0) scale(1);
+    }
+    
+    .staggered-entry {
+        opacity: 0;
+        transform: translateY(15px);
+        transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: opacity, transform;
+    }
+    .reveal-wrapper.is-visible .staggered-entry {
+        opacity: 1;
+        transform: translateY(0);
+    }
 
-  .hero-text-entry {
-      opacity: 0;
-      transform: translateY(10px);
-      animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
+    .hero-text-entry {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
 
-  .liquid-control-base {
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.5); 
-    box-shadow: 
-      0 4px 30px rgba(0, 0, 0, 0.08), 
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    transform-style: preserve-3d;
-    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s ease;
-    will-change: transform;
-  }
+    .liquid-control-base {
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.5); 
+      box-shadow: 
+        0 4px 30px rgba(0, 0, 0, 0.08), 
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      transform-style: preserve-3d;
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s ease;
+      will-change: transform;
+    }
 
-  .glass-hover-effect:hover {
-    transform: translateY(-4px); 
-    box-shadow: 
-      0 12px 30px -4px rgba(0, 0, 0, 0.1), 
-      0 2px 10px rgba(0, 0, 0, 0.05),
-      inset 0 1px 0 0 rgba(255,255,255,0.95);
-  }
+    .glass-hover-effect:hover {
+      transform: translateY(-4px); 
+      box-shadow: 
+        0 12px 30px -4px rgba(0, 0, 0, 0.1), 
+        0 2px 10px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 0 rgba(255,255,255,0.95);
+    }
 
-  .badge-style {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 0.25rem 0.5rem; 
-    border-radius: 9999px;
-    border: 1px solid rgba(0,0,0,0.05);
-    background-color: rgba(255,255,255,0.9);
-    color: #6e6e73;
-    backdrop-filter: blur(4px);
-    transition: all 0.3s;
-  }
-  .group:hover .badge-style {
-    color: #0071e3;
-    border-color: rgba(0, 113, 227, 0.2);
-    background-color: rgba(255,255,255,1);
-  }
+    .badge-style {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.5rem; 
+      border-radius: 9999px;
+      border: 1px solid rgba(0,0,0,0.05);
+      background-color: rgba(255,255,255,0.9);
+      color: #6e6e73;
+      backdrop-filter: blur(4px);
+      transition: all 0.3s;
+    }
+    .group:hover .badge-style {
+      color: #0071e3;
+      border-color: rgba(0, 113, 227, 0.2);
+      background-color: rgba(255,255,255,1);
+    }
 
-  .skill-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background-color: rgba(255,255,255,0.9);
-    border: 1px solid rgba(0,0,0,0.05);
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #1d1d1f;
-    transition: all 0.3s;
-    cursor: default;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-  }
-  .skill-chip:hover {
-    background-color: #fff;
-    border-color: rgba(0,113,227,0.2);
-    color: #0071e3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
+    .skill-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background-color: rgba(255,255,255,0.9);
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #1d1d1f;
+      transition: all 0.3s;
+      cursor: default;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+    .skill-chip:hover {
+      background-color: #fff;
+      border-color: rgba(0,113,227,0.2);
+      color: #0071e3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
 
-  .modal-backdrop-blur {
-    background-color: rgba(255, 255, 255, 0.7); 
-    backdrop-filter: blur(40px) saturate(150%);
-    -webkit-backdrop-filter: blur(40px) saturate(150%);
-    transform: translate3d(0,0,0);
-  }
-`;
-document.head.appendChild(style);
+    .modal-backdrop-blur {
+      background-color: rgba(255, 255, 255, 0.7); 
+      backdrop-filter: blur(40px) saturate(150%);
+      -webkit-backdrop-filter: blur(40px) saturate(150%);
+      transform: translate3d(0,0,0);
+    }
+  `;
+  document.head.appendChild(style);
+}
 
 
 // --- LIQUID GLASS GLOBAL CONFIG ---
@@ -258,18 +259,18 @@ const LIQUID_PROPS = {
 // --- LIQUID GLASS CORE & COMPONENT ---
 
 const SurfaceFns = {
-    CONVEX_SQUIRCLE: (x: number) => Math.pow(1 - Math.pow(1 - x, 4), 1 / 4),
+    CONVEX_SQUIRCLE: (x) => Math.pow(1 - Math.pow(1 - x, 4), 1 / 4),
 };
 
 function calculateRefractionProfile(
-    glassThickness: number,
-    bezelWidth: number,
-    bezelHeightFn: (x: number) => number,
-    refractiveIndex: number,
+    glassThickness,
+    bezelWidth,
+    bezelHeightFn,
+    refractiveIndex,
     samples = 128
 ) {
     const eta = 1 / refractiveIndex;
-    function refract(normalX: number, normalY: number): [number, number] | null {
+    function refract(normalX, normalY) {
         const dot = normalY;
         const k = 1 - eta * eta * (1 - dot * dot);
         if (k < 0) return null;
@@ -294,15 +295,14 @@ function calculateRefractionProfile(
 }
 
 function generateDisplacementMap(
-    width: number,
-    height: number,
-    radius: number,
-    bezelWidth: number,
-    profile: number[]
+    width,
+    height,
+    radius,
+    bezelWidth,
+    profile
 ) {
     if (width <= 0 || height <= 0) return { url: '', scale: 0 };
 
-    // 1. Variable Definitions (Hoisted to top to prevent TDZ/Shadowing errors)
     const safeRadius = radius;
     const safeBezel = bezelWidth;
     const safeContentW = width - safeRadius * 2;
@@ -317,7 +317,6 @@ function generateDisplacementMap(
     const imageData = ctx.createImageData(width, height);
     const data = imageData.data;
     
-    // Fill neutral
     for (let i = 0; i < data.length; i += 4) {
         data[i] = 128; data[i + 1] = 128; data[i + 2] = 0; data[i + 3] = 255; 
     }
@@ -373,23 +372,24 @@ const LiquidGlass = ({
     refractiveIndex = LIQUID_PROPS.refractiveIndex,
     blur = LIQUID_PROPS.blur,
     opacity = LIQUID_PROPS.opacity,
-    glassColor, // NEW PROP: Allow overriding the glass body color
+    glassColor,
     className,
     children,
     drag = false,
     isActive = true, 
     fallbackStyle,
     ...props
-}: any) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const filterRef = useRef<SVGFilterElement>(null);
+}) => {
+    const containerRef = useRef(null);
+    const filterRef = useRef(null);
     const uniqueId = useId().replace(/:/g, '');
     const filterId = `liquid-filter-${uniqueId}`;
     const [isSupported, setIsSupported] = useState(true);
 
     useEffect(() => {
-        const supportsBackdrop = typeof CSS !== 'undefined' && CSS.supports('backdrop-filter', 'blur(10px)');
-        const isSafari = typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        if (typeof window === 'undefined') return;
+        const supportsBackdrop = CSS.supports('backdrop-filter', 'blur(10px)');
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
         if (!supportsBackdrop || isSafari) {
             setIsSupported(false);
         }
@@ -442,8 +442,6 @@ const LiquidGlass = ({
             el.style.backdropFilter = 'none';
             void el.offsetHeight; 
             el.style.backdropFilter = `url(#${filterId})`;
-            
-            // FIXED: Use standard setProperty instead of type casting
             el.style.setProperty('-webkit-backdrop-filter', `url(#${filterId})`);
         };
 
@@ -454,12 +452,10 @@ const LiquidGlass = ({
         return () => observer.disconnect();
     }, [glassThickness, bezelWidth, refractiveIndex, blur, filterId, isActive, isSupported]);
 
-    // Determine background style
     const bodyBackgroundStyle = glassColor ? 
         { backgroundColor: glassColor, zIndex: -1 } : 
         { backgroundColor: `rgba(255, 255, 255, ${opacity})`, zIndex: -1 };
 
-    // Inactive / Fallback Render
     if (!isActive) {
         return (
             <div 
@@ -473,7 +469,6 @@ const LiquidGlass = ({
     }
 
     if (!isSupported) {
-        // Simple fallback
         return (
             <div 
                 ref={containerRef}
@@ -517,7 +512,7 @@ const LiquidGlass = ({
                 drag={drag}
                 {...props}
             >
-                {/* Body Layer: Now supports glassColor override */}
+                {/* Body Layer */}
                 <div 
                     className="absolute inset-0 rounded-[inherit] pointer-events-none transition-colors duration-300"
                     style={bodyBackgroundStyle}
@@ -623,8 +618,7 @@ const ContactCopyCard = ({ icon: Icon, label, value, colorClass, delay }) => {
   );
 };
 
-// ... CONSTANTS (SKILLS_TAGS, EXPERIENCE_DETAILED, PORTFOLIO_ITEMS, useMasonry) same as before ...
-const SKILLS_TAGS={design:[{name:"Photoshop",icon:Layers},{name:"Illustrator",icon:PenTool},{name:"Figma",icon:Monitor},{name:"Sketch",icon:Box}],aigc:[{name:"Midjourney",icon:Bot},{name:"即梦",icon:Wand2},{name:"Stable Diffusion",icon:Sparkles},{name:"ComfyUI",icon:Cpu},{name:"GPT",icon:Brain},{name:"Gemini",icon:Zap}],threeD:[{name:"Blender",icon:Box},{name:"Cinema 4D",icon:Component},{name:"Octane",icon:Loader2}]};const EXPERIENCE_DETAILED=[{company:"涅生科技(广州)股份有限公司",role:"平面设计师",roleEn:"Graphic Designer",time:"2022.07 - 2025.11",tags:["UI体系建设","电商大促","移动端/H5"],desc:["长期服务核心客户云南中烟，主导平台移动端 UI 迭代与各类活动视觉设定，确保品牌调性在商业活动中的统一性。","负责会员平台日常活动、物料资源位的设计迭代与更新支持，确保运营活动视觉资产的高效配置和及时交付。","梳理并建立物料设计规范，推动 UI 组件标准化，显著提升团队协作效率。"]},{company:"昆明爱尔眼科医院",role:"视觉设计师",roleEn:"Visual Designer",time:"2021.08 - 2021.12",tags:["品牌物料","环境美陈","商业摄影"],desc:["统筹医院日常及会展视觉物料，独立执行画册、折页等全套传播设计，确保品牌专业感。","推进院区导视系统与环境美陈落地，提升线下就医体验与空间氛围。","兼任现场拍摄与后期精修，产出高质量品牌宣传影像，建立视觉资产库。"]},{company:"昆明市春城剧院有限公司",role:"平面设计",roleEn:"Graphic Designer",time:"2020.02 - 2021.05",tags:["演艺宣发","活动拍摄","社媒运营"],desc:["担任企业宣传主力，负责演出活动主视觉设计与线上线下全渠道物料延展。","协同市场部制定视觉策略，针对不同剧目风格调整设计语言，增强传播效果。","独立完成演出现场的纪实拍摄与后期归档，用于对外发布与内部留存。"]}];const PORTFOLIO_ITEMS=[{id:9,title:"自然生态摄影系列",titleEn:"WILDLIFE & NATURE SERIES",category:["photo"],tag:"摄影创作 / 个人系列",desc:"克制的色彩与自然光影下的微观情绪记录。画面以低饱和、胶片颗粒为基调，聚焦于动物、植物等自然元素，追求干净构图与安静的孤独感表达。",bg:"bg-stone-100",galleryColor:"bg-stone-50",role:"摄影创作",time:"长期积累",client:"个人创作",tools:"A7C2 LR",thought:"通过自然光创造画面的层次感，利用大光圈、深色背景将主体清晰、安静地从环境中分离。在构图上，追求画面简洁，将焦点留给主体形态和光影变化，传达一种内敛而有力量的情绪。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/DSC08082.jpg",mediaAspect:"aspect-[3/4]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE.jpg",imagePosition:"object-center"},{id:8,title:"会员日四季主题视觉",titleEn:"SEASONAL MEMBER CAMPAIGN",category:["graphic"],tag:"运营设计 / 系列海报",desc:"针对平台月度会员日打造的系列化视觉提案。摒弃了单一固定的模版，转而在统一的版式规范下，依据时令节气（春樱、夏暑、金秋）定制差异化的视觉主题，旨在消除用户的审美疲劳，赋予常规活动以新鲜的生命力。",bg:"bg-gradient-to-br from-blue-50 to-pink-50",galleryColor:"bg-blue-50",role:"平面设计",time:"周期性项目",client:"商业委托",tools:"PS",thought:"“重复”是运营设计的大忌。在处理长线周期性活动时，策略是将“时间感”引入视觉语言。通过提取当季代表性元素（如樱花、西瓜、水墨山水）作为视觉符号，在保持品牌识别度的同时，用色彩温度调动用户的情绪感知，实现“月月有新意”的运营目标。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/2025%E5%B9%B44%E6%9C%88%E4%BC%9A%E5%91%98%E6%97%A5%20%E8%BD%AE%E6%92%AD%E5%9B%BE.png",mediaAspect:"aspect-[4/3]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE5.jpg",imagePosition:"object-center"},{id:5,title:"耳机产品详情页与主视觉",titleEn:"TWS EARBUD PRODUCT PAGE",category:["graphic","aigc"],tag:"平面设计 / 产品视觉",desc:"采用深蓝背景与科技光效，烘托 TWS 耳机的高端、沉浸调性。通过模块化布局与数据化图表，清晰传递音质、降噪等核心卖点。",bg:"bg-gradient-to-br from-slate-900 to-slate-800",galleryColor:"bg-slate-50",role:"平面设计",time:"3 天",client:"概念设计",tools:"PS AIGC",thought:"运用深色背景和蓝色光效，营造沉浸的“声学空间”。头图以大尺寸渲染图占据视觉中心，详情页采用模块化布局，理性且高效地传递产品价值。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E8%80%B3%E6%9C%BA%E5%A4%B4%E5%9B%BE.jpg",mediaAspect:"aspect-[3/4]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E8%80%B3%E6%9C%BA%E8%AF%A6%E6%83%85%E9%A1%B5.png",imagePosition:"object-center"},{id:3,title:"产品渲染",titleEn:"HARDWARE VISUALIZATION",category:["3d"],tag:"Blender / C4D",desc:"情绪光影与材质质感的精准复刻。 专注于化妆品、日化、快消品等商业产品的视觉表达。",bg:"bg-gradient-to-br from-purple-50 to-pink-50",galleryColor:"bg-purple-50",role:"视觉设计",time:"一周",client:"技法探索",tools:"Blender C4D",thought:"运用环境光与区域布光的对比，呈现不同材质在真实光影下的细腻质感。通过控制光比与反射，让画面保持留白与平衡，使产品在干净的视觉中自然凸显。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/1-%E5%90%8E%E6%9C%9F%201.png.png",mediaAspect:"aspect-[1/1]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE2.jpg",imagePosition:"object-center"},{id:4,title:"人像摄影",titleEn:"PORTRAIT PHOTOGRAPHY",category:["photo"],tag:"摄影创作 / 个人系列",desc:"低饱和与胶片颗粒调色，捕捉人物内敛的细微情绪与自然光影的柔和和流动。画面以克制的色彩为基调，通过景深分离主体与环境，追求干净构图与安静的表达。",bg:"bg-gradient-to-br from-emerald-50 to-teal-50",galleryColor:"bg-emerald-50",role:"摄影创作",time:"长期积累",client:"个人创作",tools:"A7C2 LR",thought:"捕捉情绪凝固与流动的瞬间，利用大光圈与前景元素创造空间层次和梦幻氛围。在构图上，追求克制留白，将焦点留给人物形态与光影的对话，传达一种内敛而有厚度的叙事感。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-27_16-26-56.jpg",mediaAspect:"aspect-[3/4]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE1.jpg",imagePosition:"object-center"},{id:1,title:"国潮节日营销视觉",titleEn:"FESTIVE CAMPAIGN IDENTITY",category:["graphic","aigc"],tag:"平面设计 / 节日营销",desc:"以节日营销为契机，通过限时、分阶段的三重跨界联名福利，吸引并回馈粉丝。视觉上采用节日、中式背景，突出福利主体——兔子形象，营造喜庆氛围。",bg:"bg-gradient-to-br from-red-50 to-orange-50",galleryColor:"bg-red-50",role:"平面设计",time:"3天",client:"商业委托",tools:"PS AIGC",thought:"信息层级：突出活动主题和“三重福利”的利益点。视觉风格：采用喜庆的红色、金色调搭配暗蓝背景，符合中秋国庆节日氛围，结合IP形象（兔子）增加亲和力。交互引导：明确给出扫码立即参与的行动呼吁（CTA），提升转化效率。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-27_20-26-59.jpg",mediaAspect:"aspect-[4/3]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE3.jpg",imagePosition:"object-center"},{id:6,title:"日常运营活动视觉",titleEn:"LOYALTY PROGRAM CAMPAIGN",category:["graphic"],tag:"运营设计 / 弹窗与海报",desc:"面向会员权益平台的防伪扫码活动视觉。采用高明度蓝橙与 3D 字体，让画面更轻盈。弹窗突出核心利益点，主海报用模块化结构清晰梳理规则。",bg:"bg-gradient-to-br from-blue-50 to-blue-100",galleryColor:"bg-blue-50",role:"平面设计",time:"3 天",client:"商业委托",tools:"PS",thought:"用清透的天空蓝传达扫码验真的安全感，以暖橙突出积分奖励，在小屏里保持信息清晰，不让促销氛围压过可读性。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E5%B9%B8%E8%BF%90%E6%95%B0%C2%B7%E6%89%AB%E7%A0%81%E4%BA%AB%E5%A5%BD%E8%BF%90%20%E5%BC%B9%E7%AA%97.png",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E5%B9%B8%E8%BF%90%E6%95%B0%C2%B7%E6%89%AB%E7%A0%81%E4%BA%AB%E5%A5%BD%E8%BF%90%20%E4%B8%BB%E6%B5%B7%E6%8A%A5.png",mediaAspect:"aspect-[1/1]",imagePosition:"object-center"},{id:7,title:"会员中心 UI 体系升级",titleEn:"LOYALTY APP UI SYSTEM",category:["ui"],tag:"UI / UX 设计",desc:"针对某头部快消集团的会员权益平台进行界面重构。将验真、问卷、直播、积分兑换等高频入口以卡片方式重新组织，提高信息扫描效率。整体视觉采用清爽的微质感，兼顾大促场景的活力与日常使用的舒适度。",bg:"bg-gradient-to-br from-red-50 to-orange-50",galleryColor:"bg-gray-50",role:"UI 设计",time:"2 周",client:"商业委托",tools:"Figma",thought:"面对高密度的功能入口，核心挑战在于“秩序感”的建立。摒弃了以往的列表式堆叠，转而采用栅格化图标与卡片容器，明确划分功能区（工具/活动/挑战）。色彩上，保留品牌红作为强调色，大面积留白以确保长时间使用的视觉舒适性。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-28_09-01-38.jpg",mediaAspect:"aspect-[3/4]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/Portrait%20_%2053.png",imagePosition:"object-top"},{id:2,title:"3D 游戏化营销视觉",titleEn:"3D GAMIFICATION MARKETING",category:["graphic","aigc"],tag:"平面设计 / 电商活动",desc:"通过限时短周期的积分抽奖活动（每周三10:00至周四20:00），以“最高8800分”的巨大数字利益点吸引用户参与。素材设计采用高饱和度的橙红暖色调和3D卡通风格，营造抢购、福利、惊喜的浓烈活动氛围。",bg:"bg-gradient-to-br from-orange-50 to-red-50",galleryColor:"bg-orange-50",role:"平面设计",time:"2天",client:"商业委托",tools:"PS AIGC",thought:"采用了高光、高饱和、立体化的电商/游戏风格，目的是为了最大化抓人眼球，迅速传达“福利”、“有趣”和“可获得性”，尤其适合在平台内弹窗、轮播图等寸土寸金的位置抢占注意力。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E4%B8%96%E7%95%8C%20%E7%A7%AF%E5%88%86%E5%8A%A0%E6%B2%B9%E7%AB%99%20%E7%AC%AC%E4%B8%80%E6%9C%9F%20%E8%BD%AE%E6%92%AD%E5%9B%BE.png",mediaAspect:"aspect-[4/3]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE4.jpg",imagePosition:"object-center"}];const useMasonry=(items)=>{const[columns,setColumns]=useState([[],[],[]]);useEffect(()=>{let timeoutId;const calculateColumns=()=>{const width=window.innerWidth;let numCols=width>=1024?3:width>=768?2:1;const newCols=Array.from({length:numCols},()=>[]);items.forEach((item,index)=>newCols[index%numCols].push(item));setColumns(newCols);};const debouncedCalculate=()=>{clearTimeout(timeoutId);timeoutId=setTimeout(calculateColumns,100);};calculateColumns();window.addEventListener("resize",debouncedCalculate);return()=>{window.removeEventListener("resize",debouncedCalculate);clearTimeout(timeoutId);};},[items]);return columns;};
+const SKILLS_TAGS={design:[{name:"Photoshop",icon:Layers},{name:"Illustrator",icon:PenTool},{name:"Figma",icon:Monitor},{name:"Sketch",icon:Box}],aigc:[{name:"Midjourney",icon:Bot},{name:"即梦",icon:Wand2},{name:"Stable Diffusion",icon:Sparkles},{name:"ComfyUI",icon:Cpu},{name:"GPT",icon:Brain},{name:"Gemini",icon:Zap}],threeD:[{name:"Blender",icon:Box},{name:"Cinema 4D",icon:Component},{name:"Octane",icon:Loader2}]};const EXPERIENCE_DETAILED=[{company:"涅生科技(广州)股份有限公司",role:"平面设计师",roleEn:"Graphic Designer",time:"2022.07 - 2025.11",tags:["UI体系建设","电商大促","移动端/H5"],desc:["长期服务核心客户云南中烟，主导平台移动端 UI 迭代与各类活动视觉设定，确保品牌调性在商业活动中的统一性。","负责会员平台日常活动、物料资源位的设计迭代与更新支持，确保运营活动视觉资产的高效配置和及时交付。","梳理并建立物料设计规范，推动 UI 组件标准化，显著提升团队协作效率。"]},{company:"昆明爱尔眼科医院",role:"视觉设计师",roleEn:"Visual Designer",time:"2021.08 - 2021.12",tags:["品牌物料","环境美陈","商业摄影"],desc:["统筹医院日常及会展视觉物料，独立执行画册、折页等全套传播设计，确保品牌专业感。","推进院区导视系统与环境美陈落地，提升线下就医体验与空间氛围。","兼任现场拍摄与后期精修，产出高质量品牌宣传影像，建立视觉资产库。"]},{company:"昆明市春城剧院有限公司",role:"平面设计",roleEn:"Graphic Designer",time:"2020.02 - 2021.05",tags:["演艺宣发","活动拍摄","社媒运营"],desc:["担任企业宣传主力，负责演出活动主视觉设计与线上线下全渠道物料延展。","协同市场部制定视觉策略，针对不同剧目风格调整设计语言，增强传播效果。","独立完成演出现场的纪实拍摄与后期归档，用于对外发布与内部留存。"]}];const PORTFOLIO_ITEMS=[{id:9,title:"自然生态摄影系列",titleEn:"WILDLIFE & NATURE SERIES",category:["photo"],tag:"摄影创作 / 个人系列",desc:"克制的色彩与自然光影下的微观情绪记录。画面以低饱和、胶片颗粒为基调，聚焦于动物、植物等自然元素，追求干净构图与安静的孤独感表达。",bg:"bg-stone-100",galleryColor:"bg-stone-50",role:"摄影创作",time:"长期积累",client:"个人创作",tools:"A7C2 LR",thought:"通过自然光创造画面的层次感，利用大光圈、深色背景将主体清晰、安静地从环境中分离。在构图上，追求画面简洁，将焦点留给主体形态和光影变化，传达一种内敛而有力量的情绪。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/DSC08082.jpg",mediaAspect:"aspect-[3/4]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE.jpg",imagePosition:"object-center"},{id:8,title:"会员日四季主题视觉",titleEn:"SEASONAL MEMBER CAMPAIGN",category:["graphic"],tag:"运营设计 / 系列海报",desc:"针对平台月度会员日打造的系列化视觉提案。摒弃了单一固定的模版，转而在统一的版式规范下，依据时令节气（春樱、夏暑、金秋）定制差异化的视觉主题，旨在消除用户的审美疲劳，赋予常规活动以新鲜的生命力。",bg:"bg-gradient-to-br from-blue-50 to-pink-50",galleryColor:"bg-blue-50",role:"平面设计",time:"周期性项目",client:"商业委托",tools:"PS",thought:"“重复”是运营设计的大忌。在处理长线周期性活动时，策略是将“时间感”引入视觉语言。通过提取当季代表性元素（如樱花、西瓜、水墨山水）作为视觉符号，在保持品牌识别度的同时，用色彩温度调动用户的情绪感知，实现“月月有新意”的运营目标。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/2025%E5%B9%B44%E6%9C%88%E4%BC%9A%E5%91%98%E6%97%A5%20%E8%BD%AE%E6%92%AD%E5%9B%BE.png",mediaAspect:"aspect-[4/3]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE5.jpg",imagePosition:"object-center"},{id:5,title:"耳机产品详情页与主视觉",titleEn:"TWS EARBUD PRODUCT PAGE",category:["graphic","aigc"],tag:"平面设计 / 产品视觉",desc:"采用深蓝背景与科技光效，烘托 TWS 耳机的高端、沉浸调性。通过模块化布局与数据化图表，清晰传递音质、降噪等核心卖点。",bg:"bg-gradient-to-br from-slate-900 to-slate-800",galleryColor:"bg-slate-50",role:"平面设计",time:"3 天",client:"概念设计",tools:"PS AIGC",thought:"运用深色背景和蓝色光效，营造沉浸的“声学空间”。头图以大尺寸渲染图占据视觉中心，详情页采用模块化布局，理性且高效地传递产品价值。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E8%80%B3%E6%9C%BA%E5%A4%B4%E5%9B%BE.jpg",mediaAspect:"aspect-[3/4]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E8%80%B3%E6%9C%BA%E8%AF%A6%E6%83%85%E9%A1%B5.png",imagePosition:"object-center"},{id:3,title:"产品渲染",titleEn:"HARDWARE VISUALIZATION",category:["3d"],tag:"Blender / C4D",desc:"情绪光影与材质质感的精准复刻。 专注于化妆品、日化、快消品等商业产品的视觉表达。",bg:"bg-gradient-to-br from-purple-50 to-pink-50",galleryColor:"bg-purple-50",role:"视觉设计",time:"一周",client:"技法探索",tools:"Blender C4D",thought:"运用环境光与区域布光的对比，呈现不同材质在真实光影下的细腻质感。通过控制光比与反射，让画面保持留白与平衡，使产品在干净的视觉中自然凸显。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/1-%E5%90%8E%E6%9C%9F%201.png.png",mediaAspect:"aspect-[1/1]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE2.jpg",imagePosition:"object-center"},{id:4,title:"人像摄影",titleEn:"PORTRAIT PHOTOGRAPHY",category:["photo"],tag:"摄影创作 / 个人系列",desc:"低饱和与胶片颗粒调色，捕捉人物内敛的细微情绪与自然光影的柔和和流动。画面以克制的色彩为基调，通过景深分离主体与环境，追求干净构图与安静的表达。",bg:"bg-gradient-to-br from-emerald-50 to-teal-50",galleryColor:"bg-emerald-50",role:"摄影创作",time:"长期积累",client:"个人创作",tools:"A7C2 LR",thought:"捕捉情绪凝固与流动的瞬间，利用大光圈与前景元素创造空间层次和梦幻氛围。在构图上，追求克制留白，将焦点留给人物形态与光影的对话，传达一种内敛而有厚度的叙事感。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-27_16-26-56.jpg",mediaAspect:"aspect-[3/4]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE1.jpg",imagePosition:"object-center"},{id:1,title:"国潮节日营销视觉",titleEn:"FESTIVE CAMPAIGN IDENTITY",category:["graphic","aigc"],tag:"平面设计 / 节日营销",desc:"以节日营销为契机，通过限时、分阶段的三重跨界联名福利，吸引并回馈粉丝。视觉上采用节日、中式背景，突出福利主体——兔子形象，营造喜庆氛围。",bg:"bg-gradient-to-br from-red-50 to-orange-50",galleryColor:"bg-red-50",role:"平面设计",time:"3天",client:"商业委托",tools:"PS AIGC",thought:"信息层级：突出活动主题和“三重福利”的利益点。视觉风格：采用喜庆的红色、金色调搭配暗蓝背景，符合中秋国庆节日氛围，结合IP形象（兔子）增加亲和力。交互引导：明确给出扫码立即参与的行动呼吁（CTA），提升转化效率。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-27_20-26-59.jpg",mediaAspect:"aspect-[4/3]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE3.jpg",imagePosition:"object-center"},{id:6,title:"日常运营活动视觉",titleEn:"LOYALTY PROGRAM CAMPAIGN",category:["graphic"],tag:"运营设计 / 弹窗与海报",desc:"面向会员权益平台的防伪扫码活动视觉。采用高明度蓝橙与 3D 字体，让画面更轻盈。弹窗突出核心利益点，主海报用模块化结构清晰梳理规则。",bg:"bg-gradient-to-br from-blue-50 to-blue-100",galleryColor:"bg-blue-50",role:"平面设计",time:"3 天",client:"商业委托",tools:"PS",thought:"用清透的天空蓝传达扫码验真的安全感，以暖橙突出积分奖励，在小屏里保持信息清晰，不让促销氛围压过可读性。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E5%B9%B8%E8%BF%90%E6%95%B0%C2%B7%E6%89%AB%E7%A0%81%E4%BA%AB%E5%A5%BD%E8%BF%90%20%E5%BC%B9%E7%AA%97.png",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E5%B9%B8%E8%BF%90%E6%95%B0%C2%B7%E6%89%AB%E7%A0%81%E4%BA%AB%E5%A5%BD%E8%BF%90%20%E4%B8%BB%E6%B5%B7%E6%8A%A5.png",mediaAspect:"aspect-[1/1]",imagePosition:"object-center"},{id:7,title:"会员中心 UI 体系升级",titleEn:"LOYALTY APP UI SYSTEM",category:["ui"],tag:"UI / UX 设计",desc:"针对某头部快消集团的会员权益平台进行界面重构。将验真、问卷、直播、积分兑换等高频入口以卡片方式重新组织，提高信息扫描效率。整体视觉采用清爽的微质感，兼顾大促场景的活力与日常使用的舒适度。",bg:"bg-gradient-to-br from-red-50 to-orange-50",galleryColor:"bg-gray-50",role:"UI 设计",time:"2 周",client:"商业委托",tools:"Figma",thought:"面对高密度的功能入口，核心挑战在于“秩序感”的建立。摒弃了以往的列表式堆叠，转而采用栅格化图标与卡片容器，明确划分功能区（工具/活动/挑战）。色彩上，保留品牌红作为强调色，大面积留白以确保长时间使用的视觉舒适性。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-28_09-01-38.jpg",mediaAspect:"aspect-[3/4]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/Portrait%20_%2053.png",imagePosition:"object-top"},{id:2,title:"3D 游戏化营销视觉",titleEn:"3D GAMIFICATION MARKETING",category:["graphic","aigc"],tag:"平面设计 / 电商活动",desc:"通过限时短周期的积分抽奖活动（每周三10:00至周四20:00），以“最高8800分”的巨大数字利益点吸引用户参与。素材设计采用高饱和度的橙红暖色调和3D卡通风格，营造抢购、福利、惊喜的浓烈活动氛围。",bg:"bg-gradient-to-br from-orange-50 to-red-50",galleryColor:"bg-orange-50",role:"平面设计",time:"2天",client:"商业委托",tools:"PS AIGC",thought:"采用了高光、高饱和、立体化的电商/游戏风格，目的是为了最大化抓人眼球，迅速传达“福利”、“有趣”和“可获得性”，尤其适合在平台内弹窗、轮播图等寸土寸金的位置抢占注意力。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E4%B8%96%E7%95%8C%20%E7%A7%AF%E5%88%86%E5%8A%A0%E6%B2%B9%E7%AB%99%20%E7%AC%AC%E4%B8%80%E6%9C%9F%20%E8%BD%AE%E6%92%AD%E5%9B%BE.png",mediaAspect:"aspect-[4/3]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE4.jpg",imagePosition:"object-center"}];const useMasonry=(items)=>{const[columns,setColumns]=useState([[],[],[]]);useEffect(()=>{let timeoutId;const calculateColumns=()=>{if (typeof window === 'undefined') return; const width=window.innerWidth;let numCols=width>=1024?3:width>=768?2:1;const newCols=Array.from({length:numCols},()=>[]);items.forEach((item,index)=>newCols[index%numCols].push(item));setColumns(newCols);};const debouncedCalculate=()=>{clearTimeout(timeoutId);timeoutId=setTimeout(calculateColumns,100);};calculateColumns();window.addEventListener("resize",debouncedCalculate);return()=>{window.removeEventListener("resize",debouncedCalculate);clearTimeout(timeoutId);};},[items]);return columns;};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("all");
@@ -647,6 +641,7 @@ export default function App() {
   const masonryColumns = useMasonry(filteredItems);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     const handleScroll = () => {
       const isScrolled = window.scrollY > 10;
       setScrolled(prev => (prev !== isScrolled ? isScrolled : prev));
@@ -678,6 +673,7 @@ export default function App() {
   }, [activeTab, masonryColumns]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     const handleKeyDown = (e) => {
       if (e.key === "Escape") setModalItem(null);
     };
