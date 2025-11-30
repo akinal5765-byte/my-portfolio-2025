@@ -301,6 +301,13 @@ function generateDisplacementMap(
     profile: number[]
 ) {
     if (width <= 0 || height <= 0) return { url: '', scale: 0 };
+
+    // 1. Variable Definitions (Hoisted to top to prevent TDZ/Shadowing errors)
+    const safeRadius = radius;
+    const safeBezel = bezelWidth;
+    const safeContentW = width - safeRadius * 2;
+    const safeContentH = height - safeRadius * 2;
+    
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
@@ -309,41 +316,38 @@ function generateDisplacementMap(
 
     const imageData = ctx.createImageData(width, height);
     const data = imageData.data;
-    // Fill neutral (128,128,0) and FULL OPACITY (255) for border-radius masking
+    
+    // Fill neutral
     for (let i = 0; i < data.length; i += 4) {
         data[i] = 128; data[i + 1] = 128; data[i + 2] = 0; data[i + 3] = 255; 
     }
 
-    const radiusSq = radius * radius;
-    const radiusPlusOneSq = (radius + 1.5) ** 2;
-    const radiusMinusBezelSq = (radius - bezelWidth) ** 2;
+    const radiusSq = safeRadius * safeRadius;
+    const radiusPlusOneSq = (safeRadius + 1.5) ** 2;
+    const radiusMinusBezelSq = (safeRadius - safeBezel) ** 2;
     const maxDisplacement = Math.max(...profile.map(Math.abs)) || 1;
-    
-    // Fixed: Calculate inner dimensions BEFORE the loop to avoid ReferenceError
-    const innerW = width - radius * 2;
-    const innerH = height - radius * 2;
 
     for (let y1 = 0; y1 < height; y1++) {
         for (let x1 = 0; x1 < width; x1++) {
             const idx = (y1 * width + x1) * 4;
-            const isLeft = x1 < radius;
-            const isRight = x1 >= width - radius;
-            const isTop = y1 < radius;
-            const isBottom = y1 >= height - radius;
+            const isLeft = x1 < safeRadius;
+            const isRight = x1 >= width - safeRadius;
+            const isTop = y1 < safeRadius;
+            const isBottom = y1 >= height - safeRadius;
             
-            const x = isLeft ? x1 - radius : (isRight ? x1 - radius - innerW : 0);
-            const y = isTop ? y1 - radius : (isBottom ? y1 - radius - innerH : 0);
+            const x = isLeft ? x1 - safeRadius : (isRight ? x1 - safeRadius - safeContentW : 0);
+            const y = isTop ? y1 - safeRadius : (isBottom ? y1 - safeRadius - safeContentH : 0);
             
-            const localX = isLeft ? x1 - radius : (isRight ? x1 - radius - innerW : 0);
-            const localY = isTop ? y1 - radius : (isBottom ? y1 - radius - innerH : 0);
+            const localX = isLeft ? x1 - safeRadius : (isRight ? x1 - safeRadius - safeContentW : 0);
+            const localY = isTop ? y1 - safeRadius : (isBottom ? y1 - safeRadius - safeContentH : 0);
 
             const distSq = localX * localX + localY * localY;
             const isInBezel = distSq <= radiusPlusOneSq && distSq >= radiusMinusBezelSq;
 
             if (isInBezel) {
                 const dist = Math.sqrt(distSq);
-                const distFromSide = radius - dist;
-                const profileIndex = Math.floor((distFromSide / bezelWidth) * profile.length);
+                const distFromSide = safeRadius - dist;
+                const profileIndex = Math.floor((distFromSide / safeBezel) * profile.length);
                 const safeIndex = Math.max(0, Math.min(profile.length - 1, profileIndex));
                 const displacement = profile[safeIndex] || 0;
                 const safeDist = dist || 1; 
@@ -352,7 +356,7 @@ function generateDisplacementMap(
                 const dX = (-cos * displacement) / maxDisplacement;
                 const dY = (-sin * displacement) / maxDisplacement;
                 let opacity = 1;
-                if (distSq > radiusSq) opacity = Math.max(0, 1 - (dist - radius));
+                if (distSq > radiusSq) opacity = Math.max(0, 1 - (dist - safeRadius));
                 data[idx] = 128 + dX * 127 * opacity;
                 data[idx + 1] = 128 + dY * 127 * opacity;
             }
