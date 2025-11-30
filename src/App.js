@@ -1222,6 +1222,7 @@ export default function App() {
                             <h3 className="text-lg font-bold text-[#1d1d1f] mb-0.5 tracking-tight group-hover:text-[#0071e3] transition-colors truncate w-full">
                               {item.title}
                             </h3>
+                            {/* Updated with English Title */}
                             <div className="text-[10px] font-semibold text-[#86868b] mb-3 uppercase tracking-[0.2em] opacity-70 truncate w-full">
                               {item.titleEn}
                             </div>
