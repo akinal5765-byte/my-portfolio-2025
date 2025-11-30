@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback, useId, useLayoutEffect } from "react";
 import {
   Layers,
   Monitor,
   Box,
   Camera,
   Mail,
-  Phone,
   MapPin,
-  Plus,
-  X,
   Menu,
   Briefcase,
   PenTool,
@@ -19,43 +16,43 @@ import {
   Copy,
   Check,
   MessageCircle,
-  ArrowRight,
-  Maximize2,
-  Grid3X3,
+  X,
   XCircle,
   Image as ImageIcon,
   Bot,
   Component,
-  Palette,
-  Send,
-  Wand2,
-  Loader2,
-  User,
-  Cpu,
-  Brain,
   Zap,
   Clock,
-  Aperture,
+  Wand2,
+  Cpu,
+  Brain,
+  Loader2,
+  Grid3X3,
 } from "lucide-react";
+import { motion } from 'framer-motion';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
-/* Custom CSS - Performance Optimized */
+// --- Utils ---
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+/* Custom CSS */
 const style = document.createElement("style");
 style.textContent = `
-  /* Web Font: Alibaba PuHuiTi via CDN */
   @font-face {
     font-family: 'Alibaba PuHuiTi';
     src: url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Regular.woff2') format('woff2'),
          url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Regular.woff') format('woff');
     font-weight: 400;
-    font-style: normal;
-    font-display: swap; /* Load in the background */
+    font-display: swap;
   }
   @font-face {
     font-family: 'Alibaba PuHuiTi';
     src: url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Medium.woff2') format('woff2'),
          url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Medium.woff') format('woff');
     font-weight: 500;
-    font-style: normal;
     font-display: swap;
   }
   @font-face {
@@ -63,12 +60,10 @@ style.textContent = `
     src: url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Bold.woff2') format('woff2'),
          url('https://at.alicdn.com/wf/font/Alibaba-PuHuiTi/Alibaba-PuHuiTi-Bold.woff') format('woff');
     font-weight: 700;
-    font-style: normal;
     font-display: swap;
   }
 
   :root {
-    /* PRIMARY: Web Font (Guaranteed to load) -> Fallback to System Fonts */
     --font-primary: "Alibaba PuHuiTi", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Noto Sans SC", sans-serif;
   }
 
@@ -77,10 +72,9 @@ style.textContent = `
     background-color: #f5f5f7;
     color: #1d1d1f;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden; /* Prevent horizontal scroll */
+    overflow-x: hidden;
   }
 
-  /* Optimized Global Grain Texture */
   .bg-noise {
     position: fixed;
     top: 0;
@@ -90,10 +84,8 @@ style.textContent = `
     z-index: 0;
     pointer-events: none;
     opacity: 0.03; 
-    /* Using a static pattern is lighter than a live filter, but keeping the svg data uri for the look. 
-       Ensure it's on its own layer to prevent repaint on scroll. */
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    transform: translateZ(0); /* Hardware acceleration */
+    transform: translateZ(0);
   }
 
   @keyframes blob {
@@ -105,8 +97,8 @@ style.textContent = `
   
   .animate-blob {
     animation: blob 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform; /* Performance Hint */
-    transform: translateZ(0); /* Hardware acceleration */
+    will-change: transform;
+    transform: translateZ(0);
   }
 
   @keyframes fade-in-up {
@@ -121,7 +113,6 @@ style.textContent = `
   }
   .animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
 
-  /* Optimized Animations */
   @keyframes float {
     0% { transform: translateY(0px); }
     50% { transform: translateY(-6px); }
@@ -154,9 +145,6 @@ style.textContent = `
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  /* FIX: We remove reveal-wrapper logic from Hero section. 
-     This CSS class remains for scroll-based animation in later sections.
-  */
   .reveal-wrapper {
     opacity: 0;
     transform: translateY(30px) scale(0.99);
@@ -179,16 +167,14 @@ style.textContent = `
       transform: translateY(0);
   }
 
-  /* Retaining this class definition for sequential Hero element animation */
   .hero-text-entry {
       opacity: 0;
       transform: translateY(10px);
       animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
-  /* Unified Base Glass Style */
   .liquid-control-base {
-    background: rgba(255, 255, 255, 0.65); /* Slightly increased opacity for better performance perception */
+    background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(12px) saturate(180%);
     -webkit-backdrop-filter: blur(12px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.5); 
@@ -197,7 +183,7 @@ style.textContent = `
       inset 0 1px 0 rgba(255, 255, 255, 0.8);
     transform-style: preserve-3d;
     transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s ease;
-    will-change: transform; /* Important for tilt performance */
+    will-change: transform;
   }
 
   .glass-hover-effect:hover {
@@ -250,63 +236,6 @@ style.textContent = `
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   }
 
-  .liquid-glass-btn {
-    position: relative;
-    border-radius: 9999px;
-    overflow: hidden;
-    background: #0071e3;
-    color: white;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 
-      inset 0 1px 1px rgba(255, 255, 255, 0.6),
-      0 12px 24px rgba(0, 113, 227, 0.4);
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    transform: translate3d(0,0,0); 
-  }
-
-  .liquid-glass-btn::after {
-    content: "";
-    position: absolute;
-    inset: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(
-      circle at 50% 50%, 
-      rgba(255, 255, 255, 0.9) 0%,  
-      rgba(255, 255, 255, 0) 60%
-    );
-    filter: url(#liquid-distortion); 
-    mix-blend-mode: soft-light; 
-    opacity: 0.8; 
-    transform: translateY(0) scale(1);
-    transition: transform 3s ease-in-out, opacity 0.4s;
-    pointer-events: none;
-  }
-
-  .liquid-glass-btn:hover {
-    background: #005bb5;
-    box-shadow: 
-      inset 0 1px 1px rgba(255, 255, 255, 0.8),
-      0 16px 32px rgba(0, 113, 227, 0.6);
-    transform: translateY(-2px) scale(1.02);
-  }
-
-  .liquid-glass-btn:active {
-    transform: scale(0.98);
-  }
-  
-  .floating-info-card {
-    background: rgba(255, 255, 255, 0.6); 
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 
-      0 4px 12px rgba(0,0,0,0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  }
-
   .modal-backdrop-blur {
     background-color: rgba(255, 255, 255, 0.7); 
     backdrop-filter: blur(40px) saturate(150%);
@@ -316,109 +245,349 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// --- Optimized Components ---
+
+// --- LIQUID GLASS GLOBAL CONFIG ---
+const LIQUID_PROPS = {
+    glassThickness: 180,
+    bezelWidth: 15,
+    refractiveIndex: 1.4,
+    blur: 3,
+    opacity: 0.3
+};
+
+// --- LIQUID GLASS CORE & COMPONENT ---
+
+const SurfaceFns = {
+    CONVEX_SQUIRCLE: (x: number) => Math.pow(1 - Math.pow(1 - x, 4), 1 / 4),
+};
+
+function calculateRefractionProfile(
+    glassThickness: number,
+    bezelWidth: number,
+    bezelHeightFn: (x: number) => number,
+    refractiveIndex: number,
+    samples = 128
+) {
+    const eta = 1 / refractiveIndex;
+    function refract(normalX: number, normalY: number): [number, number] | null {
+        const dot = normalY;
+        const k = 1 - eta * eta * (1 - dot * dot);
+        if (k < 0) return null;
+        const kSqrt = Math.sqrt(k);
+        return [-(eta * dot + kSqrt) * normalX, eta - (eta * dot + kSqrt) * normalY];
+    }
+    return Array.from({ length: samples }, (_, i) => {
+        const x = i / samples;
+        const y = bezelHeightFn(x);
+        const dx = x < 1 ? 0.0001 : -0.0001;
+        const y2 = bezelHeightFn(x + dx);
+        const derivative = (y2 - y) / dx;
+        const magnitude = Math.sqrt(derivative * derivative + 1);
+        const normal = [-derivative / magnitude, -1 / magnitude];
+        const refracted = refract(normal[0], normal[1]);
+        if (!refracted) return 0;
+        const remainingHeightOnBezel = y * bezelWidth;
+        const remainingHeight = remainingHeightOnBezel + glassThickness;
+        if (Math.abs(refracted[1]) < 0.0001) return 0;
+        return refracted[0] * (remainingHeight / refracted[1]);
+    });
+}
+
+function generateDisplacementMap(
+    width: number,
+    height: number,
+    radius: number,
+    bezelWidth: number,
+    profile: number[]
+) {
+    if (width <= 0 || height <= 0) return { url: '', scale: 0 };
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return { url: '', scale: 0 };
+
+    const imageData = ctx.createImageData(width, height);
+    const data = imageData.data;
+    // Fill neutral (128,128,0) and FULL OPACITY (255) for border-radius masking
+    for (let i = 0; i < data.length; i += 4) {
+        data[i] = 128; data[i + 1] = 128; data[i + 2] = 0; data[i + 3] = 255; 
+    }
+
+    const radiusSq = radius * radius;
+    const radiusPlusOneSq = (radius + 1.5) ** 2;
+    const radiusMinusBezelSq = (radius - bezelWidth) ** 2;
+    const maxDisplacement = Math.max(...profile.map(Math.abs)) || 1;
+    
+    // Fixed: Calculate inner dimensions BEFORE the loop to avoid ReferenceError
+    const innerW = width - radius * 2;
+    const innerH = height - radius * 2;
+
+    for (let y1 = 0; y1 < height; y1++) {
+        for (let x1 = 0; x1 < width; x1++) {
+            const idx = (y1 * width + x1) * 4;
+            const isLeft = x1 < radius;
+            const isRight = x1 >= width - radius;
+            const isTop = y1 < radius;
+            const isBottom = y1 >= height - radius;
+            
+            // Fixed: Use innerW/innerH which are now correctly initialized
+            const x = isLeft ? x1 - radius : (isRight ? x1 - radius - innerW : 0);
+            const y = isTop ? y1 - radius : (isBottom ? y1 - radius - innerH : 0);
+            
+            const localX = isLeft ? x1 - radius : (isRight ? x1 - radius - innerW : 0);
+            const localY = isTop ? y1 - radius : (isBottom ? y1 - radius - innerH : 0);
+
+            const distSq = localX * localX + localY * localY;
+            const isInBezel = distSq <= radiusPlusOneSq && distSq >= radiusMinusBezelSq;
+
+            if (isInBezel) {
+                const dist = Math.sqrt(distSq);
+                const distFromSide = radius - dist;
+                const profileIndex = Math.floor((distFromSide / bezelWidth) * profile.length);
+                const safeIndex = Math.max(0, Math.min(profile.length - 1, profileIndex));
+                const displacement = profile[safeIndex] || 0;
+                const safeDist = dist || 1; 
+                const cos = localX / safeDist;
+                const sin = localY / safeDist;
+                const dX = (-cos * displacement) / maxDisplacement;
+                const dY = (-sin * displacement) / maxDisplacement;
+                let opacity = 1;
+                if (distSq > radiusSq) opacity = Math.max(0, 1 - (dist - radius));
+                data[idx] = 128 + dX * 127 * opacity;
+                data[idx + 1] = 128 + dY * 127 * opacity;
+            }
+        }
+    }
+    ctx.putImageData(imageData, 0, 0);
+    return { url: canvas.toDataURL(), scale: maxDisplacement };
+}
+
+// *** LIQUID GLASS COMPONENT ***
+const LiquidGlass = ({
+    glassThickness = LIQUID_PROPS.glassThickness,
+    bezelWidth = LIQUID_PROPS.bezelWidth,
+    refractiveIndex = LIQUID_PROPS.refractiveIndex,
+    blur = LIQUID_PROPS.blur,
+    opacity = LIQUID_PROPS.opacity,
+    glassColor, // NEW PROP: Allow overriding the glass body color
+    className,
+    children,
+    drag = false,
+    isActive = true, 
+    fallbackStyle,
+    ...props
+}: any) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const filterRef = useRef<SVGFilterElement>(null);
+    const uniqueId = useId().replace(/:/g, '');
+    const filterId = `liquid-filter-${uniqueId}`;
+    const [isSupported, setIsSupported] = useState(true);
+
+    useEffect(() => {
+        const supportsBackdrop = typeof CSS !== 'undefined' && CSS.supports('backdrop-filter', 'blur(10px)');
+        const isSafari = typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        if (!supportsBackdrop || isSafari) {
+            setIsSupported(false);
+        }
+    }, []);
+
+    useLayoutEffect(() => {
+        if (!isActive || !isSupported) return;
+
+        const el = containerRef.current;
+        const filterEl = filterRef.current;
+        if (!el || !filterEl) return;
+
+        const updateFilter = () => {
+            const rect = el.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) return;
+
+            const style = window.getComputedStyle(el);
+            let radius = parseFloat(style.borderRadius) || 0;
+            
+            if (radius === 0 && (style.borderBottomLeftRadius !== '0px' || style.borderTopLeftRadius !== '0px')) {
+                 radius = Math.max(parseFloat(style.borderBottomLeftRadius), parseFloat(style.borderTopLeftRadius));
+            }
+            radius = Math.min(radius, Math.min(rect.width, rect.height) / 2);
+
+            const effectiveBezel = Math.min(bezelWidth, radius);
+
+            const profile = calculateRefractionProfile(
+                glassThickness,
+                effectiveBezel,
+                SurfaceFns.CONVEX_SQUIRCLE,
+                refractiveIndex
+            );
+
+            const { url, scale } = generateDisplacementMap(
+                rect.width,
+                rect.height,
+                radius,
+                effectiveBezel,
+                profile
+            );
+
+            filterEl.innerHTML = `
+                <feImage href="${url}" x="0" y="0" width="${rect.width}" height="${rect.height}" result="dispMap" preserveAspectRatio="none" />
+                <feGaussianBlur in="SourceGraphic" stdDeviation="${blur}" result="blurred" />
+                <feDisplacementMap in="blurred" in2="dispMap" scale="${scale}" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+                <feColorMatrix in="displaced" type="saturate" values="1.2" result="final" />
+                <feMerge><feMergeNode in="final" /></feMerge>
+            `;
+
+            el.style.backdropFilter = 'none';
+            void el.offsetHeight; 
+            el.style.backdropFilter = `url(#${filterId})`;
+            (el.style as any).webkitBackdropFilter = `url(#${filterId})`;
+        };
+
+        const observer = new ResizeObserver(updateFilter);
+        observer.observe(el);
+        requestAnimationFrame(updateFilter);
+
+        return () => observer.disconnect();
+    }, [glassThickness, bezelWidth, refractiveIndex, blur, filterId, isActive, isSupported]);
+
+    // Determine background style
+    const bodyBackgroundStyle = glassColor ? 
+        { backgroundColor: glassColor, zIndex: -1 } : 
+        { backgroundColor: `rgba(255, 255, 255, ${opacity})`, zIndex: -1 };
+
+    // Inactive / Fallback Render
+    if (!isActive) {
+        return (
+            <div 
+                ref={containerRef}
+                className={cn("relative overflow-hidden", className)}
+                style={{ ...props.style }} 
+            >
+                {children}
+            </div>
+        );
+    }
+
+    if (!isSupported) {
+        // Simple fallback
+        return (
+            <div 
+                ref={containerRef}
+                className={cn("relative overflow-hidden", className)}
+                style={{
+                    backgroundColor: glassColor || `rgba(255, 255, 255, ${opacity + 0.3})`,
+                    backdropFilter: "blur(12px) saturate(180%)",
+                    WebkitBackdropFilter: "blur(12px) saturate(180%)",
+                    border: "1px solid rgba(255, 255, 255, 0.5)",
+                    boxShadow: "0 4px 30px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
+                    ...props.style,
+                    ...fallbackStyle
+                }}
+            >
+                {children}
+            </div>
+        );
+    }
+
+    return (
+        <>
+            <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none', zIndex: -1 }}>
+                <defs>
+                    <filter 
+                        ref={filterRef}
+                        id={filterId} 
+                        x="-20%" y="-20%" width="140%" height="140%" 
+                        colorInterpolationFilters="sRGB"
+                        primitiveUnits="userSpaceOnUse" 
+                    />
+                </defs>
+            </svg>
+
+            <motion.div
+                ref={containerRef}
+                className={cn("relative overflow-hidden transform-gpu", className)}
+                style={{ 
+                    ...props.style,
+                    backgroundColor: 'transparent',
+                }}
+                drag={drag}
+                {...props}
+            >
+                {/* Body Layer: Now supports glassColor override */}
+                <div 
+                    className="absolute inset-0 rounded-[inherit] pointer-events-none transition-colors duration-300"
+                    style={bodyBackgroundStyle}
+                />
+                
+                {/* Highlights */}
+                <div className="absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)] pointer-events-none" style={{ zIndex: -1 }} />
+                <div className="absolute inset-0 rounded-[inherit] bg-gradient-to-br from-white/30 to-transparent opacity-60 mix-blend-overlay pointer-events-none" style={{ zIndex: -1 }} />
+                
+                {children}
+            </motion.div>
+        </>
+    );
+};
+
+
+// --- Updated Components ---
 
 const FloatingGlassCard = React.memo(({ children, className, delay }) => (
   <div
     className={`absolute z-20 animate-fade-in animate-float-delay ${className}`}
     style={{ animationDelay: delay }}
   >
-    <div className="floating-info-card rounded-xl p-2 flex items-center gap-2 pr-3 md:pr-4">
+    <LiquidGlass
+        className="p-2 flex items-center gap-2 pr-3 md:pr-4"
+        style={{ borderRadius: '12px' }} 
+    >
       {children}
-    </div>
+    </LiquidGlass>
   </div>
 ));
 
-// OPTIMIZED TILT CARD: Cache rect and use rAF for smooth movement
-const TiltCard = ({
-  children,
-  className = "",
-  onClick,
-  style: customStyle,
-  noHoverEffect = false,
-  ...props
-}) => {
+const TiltCard = ({ children, className = "", onClick, style: customStyle, noHoverEffect = false, ...props }) => {
   const ref = useRef(null);
-  const rectRef = useRef(null); // Cache the rect
+  const rectRef = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
   const animationFrameId = useRef(null);
-
-  const handleMouseEnter = () => {
-    setIsHovering(true);
-    // Calculate rect ONLY when mouse enters to avoid doing it on every move (Performance win)
-    if (ref.current) {
-      rectRef.current = ref.current.getBoundingClientRect();
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovering(false);
-    if (ref.current) {
-      ref.current.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
-    }
-    if (animationFrameId.current) {
-      cancelAnimationFrame(animationFrameId.current);
-    }
-  };
-
+  const handleMouseEnter = () => { setIsHovering(true); if (ref.current) rectRef.current = ref.current.getBoundingClientRect(); };
+  const handleMouseLeave = () => { setIsHovering(false); if (ref.current) ref.current.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)"; if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current); };
   const handleMouseMove = useCallback((e) => {
     if (!rectRef.current || !ref.current) return;
-
-    // Use requestAnimationFrame to smooth out the visual updates
     if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
-
     animationFrameId.current = requestAnimationFrame(() => {
       if (!rectRef.current || !ref.current) return;
-      
       const rect = rectRef.current;
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
-      
       const rotateX = ((y - centerY) / centerY) * -1.2;
       const rotateY = ((x - centerX) / centerX) * 1.2;
-
       ref.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.005, 1.005, 1.005)`;
     });
   }, []);
-
   return (
     <div
       ref={ref}
-      className={`liquid-control-base group ${className} ${
-        isHovering ? "tilt-transition" : "tilt-reset"
-      } ${
-        !noHoverEffect ? "glass-hover-effect" : ""
-      } transition-all duration-300`}
-      onMouseMove={isHovering ? handleMouseMove : undefined} // Only listen when hovering
+      className={`liquid-control-base group ${className} ${isHovering ? "tilt-transition" : "tilt-reset"} ${!noHoverEffect ? "glass-hover-effect" : ""} transition-all duration-300`}
+      onMouseMove={isHovering ? handleMouseMove : undefined}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={onClick}
-      style={{ willChange: "transform", ...customStyle }} // Hardware acceleration
+      style={{ willChange: "transform", ...customStyle }}
       {...props}
     >
-      <div
-        className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent opacity-0 transition-opacity duration-500 pointer-events-none"
-        style={{ opacity: isHovering ? 0.4 : 0 }}
-      />
+      <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent opacity-0 transition-opacity duration-500 pointer-events-none" style={{ opacity: isHovering ? 0.4 : 0 }} />
       {children}
     </div>
   );
 };
 
 const SectionHeader = ({ en, cn, align = "left" }) => (
-  <div
-    className={`mb-12 ${
-      align === "center" ? "text-center" : "text-left"
-    } flex flex-col ${align === "center" ? "items-center" : "items-start"}`}
-  >
-    <span className="text-[10px] font-bold text-[#0071e3] uppercase tracking-[0.25em] mb-2 block opacity-80">
-      {en}
-    </span>
-    <h2 className="text-3xl md:text-4xl font-bold text-[#1d1d1f] tracking-tight leading-tight">
-      {cn}
-    </h2>
+  <div className={`mb-12 ${align === "center" ? "text-center" : "text-left"} flex flex-col ${align === "center" ? "items-center" : "items-start"}`}>
+    <span className="text-[10px] font-bold text-[#0071e3] uppercase tracking-[0.25em] mb-2 block opacity-80">{en}</span>
+    <h2 className="text-3xl md:text-4xl font-bold text-[#1d1d1f] tracking-tight leading-tight">{cn}</h2>
   </div>
 );
 
@@ -430,342 +599,27 @@ const ContactCopyCard = ({ icon: Icon, label, value, colorClass, delay }) => {
     textArea.value = value;
     document.body.appendChild(textArea);
     textArea.select();
-    try {
-      document.execCommand("copy");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {}
+    try { document.execCommand("copy"); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch (err) {}
     document.body.removeChild(textArea);
   };
-
   return (
     <div className={`reveal-wrapper group ${delay} w-full`}>
-      <TiltCard
-        className="liquid-control-base block w-full p-5 rounded-[24px] flex items-center justify-between cursor-pointer hover:bg-white/90 transition-colors h-full"
-        onClick={handleCopy}
-      >
+      <TiltCard className="liquid-control-base block w-full p-5 rounded-[24px] flex items-center justify-between cursor-pointer hover:bg-white/90 transition-colors h-full" onClick={handleCopy}>
         <div className="flex items-center gap-4 relative z-10 overflow-hidden">
-          <div
-            className={`w-9 h-9 rounded-lg flex-shrink-0 flex items-center justify-center ${colorClass} transition-transform group-hover:scale-105`}
-          >
-            <Icon size={18} />
-          </div>
+          <div className={`w-9 h-9 rounded-lg flex-shrink-0 flex items-center justify-center ${colorClass} transition-transform group-hover:scale-105`}><Icon size={18} /></div>
           <div className="text-left min-w-0">
-            <div className="text-[10px] text-[#86868b] uppercase tracking-wider font-semibold mb-0.5 opacity-80">
-              {label}
-            </div>
-            <div className="text-[#1d1d1f] font-medium text-lg tracking-normal truncate font-sans">
-              {value}
-            </div>
+            <div className="text-[10px] text-[#86868b] uppercase tracking-wider font-semibold mb-0.5 opacity-80">{label}</div>
+            <div className="text-[#1d1d1f] font-medium text-lg tracking-normal truncate font-sans">{value}</div>
           </div>
         </div>
-        <div
-          className={`flex-shrink-0 relative z-10 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 border ml-4 ${
-            copied
-              ? "bg-emerald-100 text-emerald-600 border-emerald-200"
-              : "bg-white/60 text-[#86868b] border-black/5 group-hover:bg-white group-hover:text-[#1d1d1f] group-hover:shadow-sm"
-          }`}
-        >
-          {copied ? <Check size={16} /> : <Copy size={14} />}
-        </div>
+        <div className={`flex-shrink-0 relative z-10 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 border ml-4 ${copied ? "bg-emerald-100 text-emerald-600 border-emerald-200" : "bg-white/60 text-[#86868b] border-black/5 group-hover:bg-white group-hover:text-[#1d1d1f] group-hover:shadow-sm"}`}>{copied ? <Check size={16} /> : <Copy size={14} />}</div>
       </TiltCard>
     </div>
   );
 };
 
-// --- Data ---
-const SKILLS_TAGS = {
-  design: [
-    { name: "Photoshop", icon: Layers },
-    { name: "Illustrator", icon: PenTool },
-    { name: "Figma", icon: Monitor },
-    { name: "Sketch", icon: Box },
-  ],
-  aigc: [
-    { name: "Midjourney", icon: Bot },
-    { name: "即梦", icon: Wand2 },
-    { name: "Stable Diffusion", icon: Sparkles },
-    { name: "ComfyUI", icon: Cpu },
-    { name: "GPT", icon: Brain },
-    { name: "Gemini", icon: Zap },
-  ],
-  threeD: [
-    { name: "Blender", icon: Box },
-    { name: "Cinema 4D", icon: Component },
-    { name: "Octane", icon: Loader2 },
-  ],
-};
-
-const EXPERIENCE_DETAILED = [
-  {
-    company: "涅生科技(广州)股份有限公司",
-    role: "平面设计师",
-    roleEn: "Graphic Designer",
-    time: "2022.07 - 2025.11",
-    tags: ["UI体系建设", "电商大促", "移动端/H5"],
-    desc: [
-      "长期服务核心客户云南中烟，主导平台移动端 UI 迭代与各类活动视觉设定，确保品牌调性在商业活动中的统一性。",
-      "负责会员平台日常活动、物料资源位的设计迭代与更新支持，确保运营活动视觉资产的高效配置和及时交付。",
-      "梳理并建立物料设计规范，推动 UI 组件标准化，显著提升团队协作效率。", 
-    ],
-  },
-  {
-    company: "昆明爱尔眼科医院",
-    role: "视觉设计师",
-    roleEn: "Visual Designer",
-    time: "2021.08 - 2021.12",
-    tags: ["品牌物料", "环境美陈", "商业摄影"],
-    desc: [
-      "统筹医院日常及会展视觉物料，独立执行画册、折页等全套传播设计，确保品牌专业感。",
-      "推进院区导视系统与环境美陈落地，提升线下就医体验与空间氛围。",
-      "兼任现场拍摄与后期精修，产出高质量品牌宣传影像，建立视觉资产库。",
-    ],
-  },
-  {
-    company: "昆明市春城剧院有限公司",
-    role: "平面设计",
-    roleEn: "Graphic Designer",
-    time: "2020.02 - 2021.05",
-    tags: ["演艺宣发", "活动拍摄", "社媒运营"],
-    desc: [
-      "担任企业宣传主力，负责演出活动主视觉设计与线上线下全渠道物料延展。",
-      "协同市场部制定视觉策略，针对不同剧目风格调整设计语言，增强传播效果。",
-      "独立完成演出现场的纪实拍摄与后期归档，用于对外发布与内部留存。",
-    ],
-  },
-];
-
-const PORTFOLIO_ITEMS = [
-  {
-    id: 9,
-    title: "自然生态摄影系列",
-    titleEn: "WILDLIFE & NATURE SERIES",
-    category: ["photo"],
-    tag: "摄影创作 / 个人系列",
-    desc: "克制的色彩与自然光影下的微观情绪记录。画面以低饱和、胶片颗粒为基调，聚焦于动物、植物等自然元素，追求干净构图与安静的孤独感表达。",
-    bg: "bg-stone-100",
-    galleryColor: "bg-stone-50",
-    role: "摄影创作",
-    time: "长期积累",
-    client: "个人创作",
-    tools: "A7C2 LR",
-    thought:
-      "通过自然光创造画面的层次感，利用大光圈、深色背景将主体清晰、安静地从环境中分离。在构图上，追求画面简洁，将焦点留给主体形态和光影变化，传达一种内敛而有力量的情绪。",
-    coverImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/DSC08082.jpg",
-    mediaAspect: "aspect-[3/4]",
-    longImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE.jpg",
-    imagePosition: "object-center",
-  },
-  {
-    id: 8,
-    title: "会员日四季主题视觉",
-    titleEn: "SEASONAL MEMBER CAMPAIGN",
-    category: ["graphic"], 
-    tag: "运营设计 / 系列海报",
-    desc: "针对平台月度会员日打造的系列化视觉提案。摒弃了单一固定的模版，转而在统一的版式规范下，依据时令节气（春樱、夏暑、金秋）定制差异化的视觉主题，旨在消除用户的审美疲劳，赋予常规活动以新鲜的生命力。",
-    bg: "bg-gradient-to-br from-blue-50 to-pink-50",
-    galleryColor: "bg-blue-50",
-    role: "平面设计",
-    time: "周期性项目",
-    client: "商业委托",
-    tools: "PS",
-    thought:
-      "“重复”是运营设计的大忌。在处理长线周期性活动时，策略是将“时间感”引入视觉语言。通过提取当季代表性元素（如樱花、西瓜、水墨山水）作为视觉符号，在保持品牌识别度的同时，用色彩温度调动用户的情绪感知，实现“月月有新意”的运营目标。",
-    coverImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/2025%E5%B9%B44%E6%9C%88%E4%BC%9A%E5%91%98%E6%97%A5%20%E8%BD%AE%E6%92%AD%E5%9B%BE.png",
-    mediaAspect: "aspect-[4/3]", 
-    longImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE5.jpg",
-    imagePosition: "object-center",
-  },
-  {
-    id: 5,
-    title: "耳机产品详情页与主视觉",
-    en: "TWS EARBUD PRODUCT PAGE",
-    category: ["graphic", "aigc"], 
-    tag: "平面设计 / 产品视觉",
-    desc: "采用深蓝背景与科技光效，烘托 TWS 耳机的高端、沉浸调性。通过模块化布局与数据化图表，清晰传递音质、降噪等核心卖点。",
-    bg: "bg-gradient-to-br from-slate-900 to-slate-800",
-    galleryColor: "bg-slate-50",
-    role: "平面设计",
-    time: "3 天",
-    client: "概念设计",
-    tools: "PS AIGC",
-    thought:
-      "运用深色背景和蓝色光效，营造沉浸的“声学空间”。头图以大尺寸渲染图占据视觉中心，详情页采用模块化布局，理性且高效地传递产品价值。",
-    coverImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E8%80%B3%E6%9C%BA%E5%A4%B4%E5%9B%BE.jpg",
-    mediaAspect: "aspect-[3/4]",
-    longImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E8%80%B3%E6%9C%BA%E8%AF%A6%E6%83%85%E9%A1%B5.png",
-    imagePosition: "object-center",
-  },
-  {
-    id: 3,
-    title: "产品渲染",
-    en: "HARDWARE & PACKAGING VISUALIZATION",
-    category: ["3d"],
-    tag: "Blender / C4D",
-    desc: "情绪光影与材质质感的精准复刻。 专注于化妆品、日化、快消品等商业产品的视觉表达。",
-    bg: "bg-gradient-to-br from-purple-50 to-pink-50",
-    galleryColor: "bg-purple-50",
-    role: "视觉设计",
-    time: "一周",
-    client: "技法探索",
-    tools: "Blender C4D",
-    thought:
-      "运用环境光与区域布光的对比，呈现不同材质在真实光影下的细腻质感。通过控制光比与反射，让画面保持留白与平衡，使产品在干净的视觉中自然凸显。",
-    coverImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/1-%E5%90%8E%E6%9C%9F%201.png.png",
-    mediaAspect: "aspect-[1/1]",
-    longImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE2.jpg",
-    imagePosition: "object-center",
-  },
-  {
-    id: 4,
-    title: "人像摄影",
-    en: "PORTRAIT PHOTOGRAPHY",
-    category: ["photo"],
-    tag: "摄影创作 / 个人系列",
-    desc: "低饱和与胶片颗粒调色，捕捉人物内敛的细微情绪与自然光影的柔和和流动。画面以克制的色彩为基调，通过景深分离主体与环境，追求干净构图与安静的表达。",
-    bg: "bg-gradient-to-br from-emerald-50 to-teal-50",
-    galleryColor: "bg-emerald-50",
-    role: "摄影创作",
-    time: "长期积累",
-    client: "个人创作",
-    tools: "A7C2 LR",
-    thought:
-      "捕捉情绪凝固与流动的瞬间，利用大光圈与前景元素创造空间层次和梦幻氛围。在构图上，追求克制留白，将焦点留给人物形态与光影的对话，传达一种内敛而有厚度的叙事感。",
-    coverImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-27_16-26-56.jpg",
-    mediaAspect: "aspect-[3/4]",
-    longImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE1.jpg",
-    imagePosition: "object-center",
-  },
-  {
-    id: 1,
-    title: "国潮节日营销视觉",
-    en: "FESTIVE CAMPAIGN IDENTITY",
-    category: ["graphic", "aigc"], 
-    tag: "平面设计 / 节日营销",
-    desc: "以节日营销为契机，通过限时、分阶段的三重跨界联名福利，吸引并回馈粉丝。视觉上采用节日、中式背景，突出福利主体——兔子形象，营造喜庆氛围。",
-    bg: "bg-gradient-to-br from-red-50 to-orange-50",
-    galleryColor: "bg-red-50",
-    role: "平面设计",
-    time: "3天",
-    client: "商业委托",
-    tools: "PS AIGC",
-    thought:
-      "信息层级：突出活动主题和“三重福利”的利益点。视觉风格：采用喜庆的红色、金色调搭配暗蓝背景，符合中秋国庆节日氛围，结合IP形象（兔子）增加亲和力。交互引导：明确给出扫码立即参与的行动呼吁（CTA），提升转化效率。",
-    coverImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-27_20-26-59.jpg",
-    mediaAspect: "aspect-[4/3]",
-    longImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE3.jpg",
-    imagePosition: "object-center",
-  },
-  {
-    id: 6,
-    title: "日常运营活动视觉",
-    en: "LOYALTY PROGRAM CAMPAIGN",
-    category: ["graphic"],
-    tag: "运营设计 / 弹窗与海报",
-    desc: "面向会员权益平台的防伪扫码活动视觉。采用高明度蓝橙与 3D 字体，让画面更轻盈。弹窗突出核心利益点，主海报用模块化结构清晰梳理规则。",
-    bg: "bg-gradient-to-br from-blue-50 to-blue-100",
-    galleryColor: "bg-blue-50",
-    role: "平面设计",
-    time: "3 天",
-    client: "商业委托",
-    tools: "PS",
-    thought:
-      "用清透的天空蓝传达扫码验真的安全感，以暖橙突出积分奖励，在小屏里保持信息清晰，不让促销氛围压过可读性。",
-    coverImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E5%B9%B8%E8%BF%90%E6%95%B0%C2%B7%E6%89%AB%E7%A0%81%E4%BA%AB%E5%A5%BD%E8%BF%90%20%E5%BC%B9%E7%AA%97.png", 
-    longImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E5%B9%B8%E8%BF%90%E6%95%B0%C2%B7%E6%89%AB%E7%A0%81%E4%BA%AB%E5%A5%BD%E8%BF%90%20%E4%B8%BB%E6%B5%B7%E6%8A%A5.png",
-    mediaAspect: "aspect-[1/1]", 
-    imagePosition: "object-center",
-  },
-  {
-    id: 7,
-    title: "会员中心 UI 体系升级",
-    en: "LOYALTY APP UI SYSTEM",
-    category: ["ui"],
-    tag: "UI / UX 设计",
-    desc: "针对某头部快消集团的会员权益平台进行界面重构。将验真、问卷、直播、积分兑换等高频入口以卡片方式重新组织，提高信息扫描效率。整体视觉采用清爽的微质感，兼顾大促场景的活力与日常使用的舒适度。",
-    bg: "bg-gradient-to-br from-red-50 to-orange-50",
-    galleryColor: "bg-gray-50",
-    role: "UI 设计",
-    time: "2 周",
-    client: "商业委托",
-    tools: "Figma",
-    thought:
-      "面对高密度的功能入口，核心挑战在于“秩序感”的建立。摒弃了以往的列表式堆叠，转而采用栅格化图标与卡片容器，明确划分功能区（工具/活动/挑战）。色彩上，保留品牌红作为强调色，大面积留白以确保长时间使用的视觉舒适性。",
-    coverImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-28_09-01-38.jpg",
-    mediaAspect: "aspect-[3/4]",
-    longImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/Portrait%20_%2053.png",
-    imagePosition: "object-top",
-  },
-  {
-    id: 2,
-    title: "3D 游戏化营销视觉",
-    en: "3D GAMIFICATION MARKETING",
-    category: ["graphic", "aigc"], 
-    tag: "平面设计 / 电商活动",
-    desc: "通过限时短周期的积分抽奖活动（每周三10:00至周四20:00），以“最高8800分”的巨大数字利益点吸引用户参与。素材设计采用高饱和度的橙红暖色调和3D卡通风格，营造抢购、福利、惊喜的浓烈活动氛围。",
-    bg: "bg-gradient-to-br from-orange-50 to-red-50",
-    galleryColor: "bg-orange-50",
-    role: "平面设计",
-    time: "2天",
-    client: "商业委托",
-    tools: "PS AIGC",
-    thought:
-      "采用了高光、高饱和、立体化的电商/游戏风格，目的是为了最大化抓人眼球，迅速传达“福利”、“有趣”和“可获得性”，尤其适合在平台内弹窗、轮播图等寸土寸金的位置抢占注意力。",
-    coverImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E4%B8%96%E7%95%8C%20%E7%A7%AF%E5%88%86%E5%8A%A0%E6%B2%B9%E7%AB%99%20%E7%AC%AC%E4%B8%80%E6%9C%9F%20%E8%BD%AE%E6%92%AD%E5%9B%BE.png",
-    mediaAspect: "aspect-[4/3]",
-    longImage:
-      "https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE4.jpg",
-    imagePosition: "object-center",
-  },
-];
-
-// OPTIMIZED MASONRY: Debounced resize listener
-const useMasonry = (items) => {
-  const [columns, setColumns] = useState([[], [], []]);
-  
-  useEffect(() => {
-    let timeoutId;
-    
-    const calculateColumns = () => {
-      const width = window.innerWidth;
-      let numCols = width >= 1024 ? 3 : width >= 768 ? 2 : 1;
-      const newCols = Array.from({ length: numCols }, () => []);
-      items.forEach((item, index) => newCols[index % numCols].push(item));
-      setColumns(newCols);
-    };
-
-    const debouncedCalculate = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(calculateColumns, 100); // Debounce resize by 100ms
-    };
-
-    calculateColumns(); // Initial calculation
-    window.addEventListener("resize", debouncedCalculate);
-    return () => {
-      window.removeEventListener("resize", debouncedCalculate);
-      clearTimeout(timeoutId);
-    };
-  }, [items]);
-  
-  return columns;
-};
+// ... CONSTANTS (SKILLS_TAGS, EXPERIENCE_DETAILED, PORTFOLIO_ITEMS, useMasonry) same as before ...
+const SKILLS_TAGS={design:[{name:"Photoshop",icon:Layers},{name:"Illustrator",icon:PenTool},{name:"Figma",icon:Monitor},{name:"Sketch",icon:Box}],aigc:[{name:"Midjourney",icon:Bot},{name:"即梦",icon:Wand2},{name:"Stable Diffusion",icon:Sparkles},{name:"ComfyUI",icon:Cpu},{name:"GPT",icon:Brain},{name:"Gemini",icon:Zap}],threeD:[{name:"Blender",icon:Box},{name:"Cinema 4D",icon:Component},{name:"Octane",icon:Loader2}]};const EXPERIENCE_DETAILED=[{company:"涅生科技(广州)股份有限公司",role:"平面设计师",roleEn:"Graphic Designer",time:"2022.07 - 2025.11",tags:["UI体系建设","电商大促","移动端/H5"],desc:["长期服务核心客户云南中烟，主导平台移动端 UI 迭代与各类活动视觉设定，确保品牌调性在商业活动中的统一性。","负责会员平台日常活动、物料资源位的设计迭代与更新支持，确保运营活动视觉资产的高效配置和及时交付。","梳理并建立物料设计规范，推动 UI 组件标准化，显著提升团队协作效率。"]},{company:"昆明爱尔眼科医院",role:"视觉设计师",roleEn:"Visual Designer",time:"2021.08 - 2021.12",tags:["品牌物料","环境美陈","商业摄影"],desc:["统筹医院日常及会展视觉物料，独立执行画册、折页等全套传播设计，确保品牌专业感。","推进院区导视系统与环境美陈落地，提升线下就医体验与空间氛围。","兼任现场拍摄与后期精修，产出高质量品牌宣传影像，建立视觉资产库。"]},{company:"昆明市春城剧院有限公司",role:"平面设计",roleEn:"Graphic Designer",time:"2020.02 - 2021.05",tags:["演艺宣发","活动拍摄","社媒运营"],desc:["担任企业宣传主力，负责演出活动主视觉设计与线上线下全渠道物料延展。","协同市场部制定视觉策略，针对不同剧目风格调整设计语言，增强传播效果。","独立完成演出现场的纪实拍摄与后期归档，用于对外发布与内部留存。"]}];const PORTFOLIO_ITEMS=[{id:9,title:"自然生态摄影系列",titleEn:"WILDLIFE & NATURE SERIES",category:["photo"],tag:"摄影创作 / 个人系列",desc:"克制的色彩与自然光影下的微观情绪记录。画面以低饱和、胶片颗粒为基调，聚焦于动物、植物等自然元素，追求干净构图与安静的孤独感表达。",bg:"bg-stone-100",galleryColor:"bg-stone-50",role:"摄影创作",time:"长期积累",client:"个人创作",tools:"A7C2 LR",thought:"通过自然光创造画面的层次感，利用大光圈、深色背景将主体清晰、安静地从环境中分离。在构图上，追求画面简洁，将焦点留给主体形态和光影变化，传达一种内敛而有力量的情绪。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/DSC08082.jpg",mediaAspect:"aspect-[3/4]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE.jpg",imagePosition:"object-center"},{id:8,title:"会员日四季主题视觉",titleEn:"SEASONAL MEMBER CAMPAIGN",category:["graphic"],tag:"运营设计 / 系列海报",desc:"针对平台月度会员日打造的系列化视觉提案。摒弃了单一固定的模版，转而在统一的版式规范下，依据时令节气（春樱、夏暑、金秋）定制差异化的视觉主题，旨在消除用户的审美疲劳，赋予常规活动以新鲜的生命力。",bg:"bg-gradient-to-br from-blue-50 to-pink-50",galleryColor:"bg-blue-50",role:"平面设计",time:"周期性项目",client:"商业委托",tools:"PS",thought:"“重复”是运营设计的大忌。在处理长线周期性活动时，策略是将“时间感”引入视觉语言。通过提取当季代表性元素（如樱花、西瓜、水墨山水）作为视觉符号，在保持品牌识别度的同时，用色彩温度调动用户的情绪感知，实现“月月有新意”的运营目标。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/2025%E5%B9%B44%E6%9C%88%E4%BC%9A%E5%91%98%E6%97%A5%20%E8%BD%AE%E6%92%AD%E5%9B%BE.png",mediaAspect:"aspect-[4/3]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE5.jpg",imagePosition:"object-center"},{id:5,title:"耳机产品详情页与主视觉",titleEn:"TWS EARBUD PRODUCT PAGE",category:["graphic","aigc"],tag:"平面设计 / 产品视觉",desc:"采用深蓝背景与科技光效，烘托 TWS 耳机的高端、沉浸调性。通过模块化布局与数据化图表，清晰传递音质、降噪等核心卖点。",bg:"bg-gradient-to-br from-slate-900 to-slate-800",galleryColor:"bg-slate-50",role:"平面设计",time:"3 天",client:"概念设计",tools:"PS AIGC",thought:"运用深色背景和蓝色光效，营造沉浸的“声学空间”。头图以大尺寸渲染图占据视觉中心，详情页采用模块化布局，理性且高效地传递产品价值。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E8%80%B3%E6%9C%BA%E5%A4%B4%E5%9B%BE.jpg",mediaAspect:"aspect-[3/4]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E8%80%B3%E6%9C%BA%E8%AF%A6%E6%83%85%E9%A1%B5.png",imagePosition:"object-center"},{id:3,title:"产品渲染",titleEn:"HARDWARE VISUALIZATION",category:["3d"],tag:"Blender / C4D",desc:"情绪光影与材质质感的精准复刻。 专注于化妆品、日化、快消品等商业产品的视觉表达。",bg:"bg-gradient-to-br from-purple-50 to-pink-50",galleryColor:"bg-purple-50",role:"视觉设计",time:"一周",client:"技法探索",tools:"Blender C4D",thought:"运用环境光与区域布光的对比，呈现不同材质在真实光影下的细腻质感。通过控制光比与反射，让画面保持留白与平衡，使产品在干净的视觉中自然凸显。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/1-%E5%90%8E%E6%9C%9F%201.png.png",mediaAspect:"aspect-[1/1]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE2.jpg",imagePosition:"object-center"},{id:4,title:"人像摄影",titleEn:"PORTRAIT PHOTOGRAPHY",category:["photo"],tag:"摄影创作 / 个人系列",desc:"低饱和与胶片颗粒调色，捕捉人物内敛的细微情绪与自然光影的柔和和流动。画面以克制的色彩为基调，通过景深分离主体与环境，追求干净构图与安静的表达。",bg:"bg-gradient-to-br from-emerald-50 to-teal-50",galleryColor:"bg-emerald-50",role:"摄影创作",time:"长期积累",client:"个人创作",tools:"A7C2 LR",thought:"捕捉情绪凝固与流动的瞬间，利用大光圈与前景元素创造空间层次和梦幻氛围。在构图上，追求克制留白，将焦点留给人物形态与光影的对话，传达一种内敛而有厚度的叙事感。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-27_16-26-56.jpg",mediaAspect:"aspect-[3/4]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE1.jpg",imagePosition:"object-center"},{id:1,title:"国潮节日营销视觉",titleEn:"FESTIVE CAMPAIGN IDENTITY",category:["graphic","aigc"],tag:"平面设计 / 节日营销",desc:"以节日营销为契机，通过限时、分阶段的三重跨界联名福利，吸引并回馈粉丝。视觉上采用节日、中式背景，突出福利主体——兔子形象，营造喜庆氛围。",bg:"bg-gradient-to-br from-red-50 to-orange-50",galleryColor:"bg-red-50",role:"平面设计",time:"3天",client:"商业委托",tools:"PS AIGC",thought:"信息层级：突出活动主题和“三重福利”的利益点。视觉风格：采用喜庆的红色、金色调搭配暗蓝背景，符合中秋国庆节日氛围，结合IP形象（兔子）增加亲和力。交互引导：明确给出扫码立即参与的行动呼吁（CTA），提升转化效率。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-27_20-26-59.jpg",mediaAspect:"aspect-[4/3]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE3.jpg",imagePosition:"object-center"},{id:6,title:"日常运营活动视觉",titleEn:"LOYALTY PROGRAM CAMPAIGN",category:["graphic"],tag:"运营设计 / 弹窗与海报",desc:"面向会员权益平台的防伪扫码活动视觉。采用高明度蓝橙与 3D 字体，让画面更轻盈。弹窗突出核心利益点，主海报用模块化结构清晰梳理规则。",bg:"bg-gradient-to-br from-blue-50 to-blue-100",galleryColor:"bg-blue-50",role:"平面设计",time:"3 天",client:"商业委托",tools:"PS",thought:"用清透的天空蓝传达扫码验真的安全感，以暖橙突出积分奖励，在小屏里保持信息清晰，不让促销氛围压过可读性。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E5%B9%B8%E8%BF%90%E6%95%B0%C2%B7%E6%89%AB%E7%A0%81%E4%BA%AB%E5%A5%BD%E8%BF%90%20%E5%BC%B9%E7%AA%97.png",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E5%B9%B8%E8%BF%90%E6%95%B0%C2%B7%E6%89%AB%E7%A0%81%E4%BA%AB%E5%A5%BD%E8%BF%90%20%E4%B8%BB%E6%B5%B7%E6%8A%A5.png",mediaAspect:"aspect-[1/1]",imagePosition:"object-center"},{id:7,title:"会员中心 UI 体系升级",titleEn:"LOYALTY APP UI SYSTEM",category:["ui"],tag:"UI / UX 设计",desc:"针对某头部快消集团的会员权益平台进行界面重构。将验真、问卷、直播、积分兑换等高频入口以卡片方式重新组织，提高信息扫描效率。整体视觉采用清爽的微质感，兼顾大促场景的活力与日常使用的舒适度。",bg:"bg-gradient-to-br from-red-50 to-orange-50",galleryColor:"bg-gray-50",role:"UI 设计",time:"2 周",client:"商业委托",tools:"Figma",thought:"面对高密度的功能入口，核心挑战在于“秩序感”的建立。摒弃了以往的列表式堆叠，转而采用栅格化图标与卡片容器，明确划分功能区（工具/活动/挑战）。色彩上，保留品牌红作为强调色，大面积留白以确保长时间使用的视觉舒适性。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/PixPin_2025-11-28_09-01-38.jpg",mediaAspect:"aspect-[3/4]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/Portrait%20_%2053.png",imagePosition:"object-top"},{id:2,title:"3D 游戏化营销视觉",titleEn:"3D GAMIFICATION MARKETING",category:["graphic","aigc"],tag:"平面设计 / 电商活动",desc:"通过限时短周期的积分抽奖活动（每周三10:00至周四20:00），以“最高8800分”的巨大数字利益点吸引用户参与。素材设计采用高饱和度的橙红暖色调和3D卡通风格，营造抢购、福利、惊喜的浓烈活动氛围。",bg:"bg-gradient-to-br from-orange-50 to-red-50",galleryColor:"bg-orange-50",role:"平面设计",time:"2天",client:"商业委托",tools:"PS AIGC",thought:"采用了高光、高饱和、立体化的电商/游戏风格，目的是为了最大化抓人眼球，迅速传达“福利”、“有趣”和“可获得性”，尤其适合在平台内弹窗、轮播图等寸土寸金的位置抢占注意力。",coverImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E6%9C%AC%E9%A6%99%E4%B8%96%E7%95%8C%20%E7%A7%AF%E5%88%86%E5%8A%A0%E6%B2%B9%E7%AB%99%20%E7%AC%AC%E4%B8%80%E6%9C%9F%20%E8%BD%AE%E6%92%AD%E5%9B%BE.png",mediaAspect:"aspect-[4/3]",longImage:"https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/%E9%95%BF%E5%9B%BE4.jpg",imagePosition:"object-center"}];const useMasonry=(items)=>{const[columns,setColumns]=useState([[],[],[]]);useEffect(()=>{let timeoutId;const calculateColumns=()=>{const width=window.innerWidth;let numCols=width>=1024?3:width>=768?2:1;const newCols=Array.from({length:numCols},()=>[]);items.forEach((item,index)=>newCols[index%numCols].push(item));setColumns(newCols);};const debouncedCalculate=()=>{clearTimeout(timeoutId);timeoutId=setTimeout(calculateColumns,100);};calculateColumns();window.addEventListener("resize",debouncedCalculate);return()=>{window.removeEventListener("resize",debouncedCalculate);clearTimeout(timeoutId);};},[items]);return columns;};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("all");
@@ -787,14 +641,12 @@ export default function App() {
 
   const masonryColumns = useMasonry(filteredItems);
 
-  // OPTIMIZED SCROLL LISTENER: Only update state when value actually changes
   useEffect(() => {
     const handleScroll = () => {
       const isScrolled = window.scrollY > 10;
       setScrolled(prev => (prev !== isScrolled ? isScrolled : prev));
     };
-    
-    window.addEventListener("scroll", handleScroll, { passive: true }); // Passive listener for performance
+    window.addEventListener("scroll", handleScroll, { passive: true });
     
     const observer = new IntersectionObserver(
       (entries) => {
@@ -807,7 +659,6 @@ export default function App() {
       },
       { rootMargin: "0px 0px -40px 0px", threshold: 0.1 }
     );
-    
     setTimeout(
       () =>
         document
@@ -815,18 +666,16 @@ export default function App() {
           .forEach((el) => observer.observe(el)),
       100
     );
-    
     return () => {
       window.removeEventListener("scroll", handleScroll);
       observer.disconnect();
     };
-  }, [activeTab, masonryColumns]); // Kept dependencies to re-attach observer on content change
+  }, [activeTab, masonryColumns]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") setModalItem(null);
     };
-
     if (modalItem) {
       document.body.style.overflow = "hidden";
       window.addEventListener("keydown", handleKeyDown);
@@ -883,122 +732,107 @@ export default function App() {
     <div className="min-h-screen relative text-[#1d1d1f] font-sans selection:bg-[#0071e3]/20 selection:text-[#0071e3] bg-[#fbfbfd]">
       <div className="bg-noise"></div>
 
-      {/* Background Blobs - Now Hardware Accelerated */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-blue-100/30 rounded-full mix-blend-multiply filter blur-[100px] opacity-60 animate-blob"></div>
         <div className="absolute top-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-purple-100/30 rounded-full mix-blend-multiply filter blur-[100px] opacity-60 animate-blob delay-2000"></div>
         <div className="absolute bottom-[-20%] left-[20%] w-[60vw] h-[60vw] bg-indigo-100/30 rounded-full mix-blend-multiply filter blur-[100px] opacity-60 animate-blob delay-4000"></div>
       </div>
 
-      <svg className="hidden">
-        <defs>
-          <filter
-            id="liquid-distortion"
-            x="-20%"
-            y="-20%"
-            width="140%"
-            height="140%"
-          >
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.015"
-              numOctaves="3"
-              result="warp"
-            />
-            <feDisplacementMap
-              xChannelSelector="R"
-              yChannelSelector="G"
-              scale="100"
-              in="SourceGraphic"
-              in2="warp"
-            />
-            <feGaussianBlur stdDeviation="0.5" />
-          </filter>
-        </defs>
-      </svg>
-
-      {/* Navbar */}
+      {/* Navbar with LiquidGlass */}
       <nav
         className={`fixed z-50 transition-all duration-500 ease-out left-1/2 -translate-x-1/2 ${
           scrolled
-            ? "top-4 w-[90%] max-w-[850px] h-14 rounded-full liquid-control-base px-6" 
-            : "top-0 w-full h-24 bg-transparent px-6"
+            ? "top-4 w-[90%] max-w-[850px]" 
+            : "top-0 w-full"
         }`}
       >
-        <div
-          className={`h-full flex justify-between items-center ${
-            scrolled ? "w-full" : "max-w-[1024px] mx-auto w-full"
-          }`}
+        <LiquidGlass
+            isActive={scrolled} // Only active heavily when scrolled
+            className={`transition-all duration-500 ${
+                scrolled 
+                ? 'h-14 shadow-lg rounded-full' // Rounded capsule only when scrolled
+                : 'h-24 shadow-none bg-transparent rounded-none' // Full width rectangular when top
+            }`}
+            style={{ 
+                // Dynamically change radius for masking calc based on scroll
+                borderRadius: scrolled ? '9999px' : '0px' 
+            }}
         >
-          <a href="#" className="flex items-center gap-2 group">
-            {/* Logo Image */}
-            <div className="w-8 h-8 rounded-lg bg-[#1d1d1f] text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300 p-1">
-              <img 
-                src="https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/logo_wight.png" 
-                alt="Personal Logo" 
-                className="w-full h-full object-contain" 
-                loading="lazy"
-              />
-            </div>
-            <div className="flex flex-col justify-center h-full">
-              <span className="text-sm font-bold leading-none tracking-tight text-[#1d1d1f] uppercase">
-                PORTFOLIO
-              </span>
-              <span className="text-[10px] text-[#86868b] leading-none mt-0.5 tracking-wider uppercase font-semibold">
-                LI YUKUN
-              </span>
-            </div>
-          </a>
-          <div className="hidden md:flex items-center gap-8 text-xs font-semibold tracking-wide text-[#1d1d1f]/70">
-            {["关于 About", "作品 Works", "经历 Career", "联系 Contact"].map(
-              (item, idx) => {
-                const [cn] = item.split(" ");
-                const href = `#${
-                  cn === "关于"
-                    ? "about"
-                    : cn === "作品"
-                    ? "work"
-                    : cn === "经历"
-                    ? "experience"
-                    : "contact"
-                }`;
-                return (
-                  <a
-                    key={idx}
-                    href={href}
-                    className="hover:text-[#0071e3] transition-colors"
-                  >
-                    {item}
-                  </a>
-                );
-              }
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <a
-              href="#contact"
-              className="hidden md:flex h-8 px-5 items-center justify-center rounded-full transition-all text-xs font-semibold tracking-wide liquid-glass-btn"
-              style={{
-                backgroundColor: "rgba(0, 113, 227, 0.95)",
-                backdropFilter: "blur(10px) saturate(200%)",
-                WebkitBackdropFilter: "blur(10px) saturate(200%)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                boxShadow:
-                  "0 8px 20px rgba(0, 113, 227, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8)",
-              }}
+            <div
+            className={`h-full flex justify-between items-center px-6 ${
+                scrolled ? "w-full" : "max-w-[1024px] mx-auto w-full"
+            }`}
             >
-              合作咨询
+            <a href="#" className="flex items-center gap-2 group">
+                <div className="w-8 h-8 rounded-lg bg-[#1d1d1f] text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300 p-1">
+                <img 
+                    src="https://akina-1389178865.cos.ap-chongqing.myqcloud.com/image/logo_wight.png" 
+                    alt="Personal Logo" 
+                    className="w-full h-full object-contain" 
+                    loading="lazy"
+                />
+                </div>
+                <div className="flex flex-col justify-center h-full">
+                <span className="text-sm font-bold leading-none tracking-tight text-[#1d1d1f] uppercase">
+                    PORTFOLIO
+                </span>
+                {/* MODIFIED: Changed color from #86868b to #424245 for better readability while keeping hierarchy */}
+                <span className="text-[10px] text-[#424245] leading-none mt-0.5 tracking-wider uppercase font-semibold">
+                    LI YUKUN
+                </span>
+                </div>
             </a>
+            <div className="hidden md:flex items-center gap-8 text-xs font-semibold tracking-wide text-[#1d1d1f]/70">
+                {["关于 About", "作品 Works", "经历 Career", "联系 Contact"].map(
+                (item, idx) => {
+                    const [cn] = item.split(" ");
+                    const href = `#${
+                    cn === "关于"
+                        ? "about"
+                        : cn === "作品"
+                        ? "work"
+                        : cn === "经历"
+                        ? "experience"
+                        : "contact"
+                    }`;
+                    return (
+                    <a
+                        key={idx}
+                        href={href}
+                        className="hover:text-[#0071e3] transition-colors"
+                    >
+                        {item}
+                    </a>
+                    );
+                }
+                )}
+            </div>
 
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-[#1d1d1f] p-2 rounded-full hover:bg-black/5 transition-colors"
-            >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
-        </div>
+            <div className="flex items-center gap-2">
+                <a href="#contact" className="block">
+                    {/* Updated CTA Button: Stronger Blue */}
+                    <LiquidGlass 
+                        {...LIQUID_PROPS}
+                        glassColor="rgba(0, 113, 227, 0.9)" // Strong apple blue, less opacity
+                        className="hidden md:flex h-8 px-5 items-center justify-center rounded-full text-xs font-semibold tracking-wide text-white transition-all hover:scale-105 active:scale-95 shadow-[0_8px_20px_rgba(0,113,227,0.35),inset_0_1px_1px_rgba(255,255,255,0.8)]"
+                        style={{
+                            borderRadius: '9999px',
+                            border: "1px solid rgba(255, 255, 255, 0.2)",
+                        }}
+                    >
+                        合作咨询
+                    </LiquidGlass>
+                </a>
+
+                <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden text-[#1d1d1f] p-2 rounded-full hover:bg-black/5 transition-colors"
+                >
+                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                </button>
+            </div>
+            </div>
+        </LiquidGlass>
       </nav>
 
       {/* Mobile Menu */}
@@ -1036,7 +870,6 @@ export default function App() {
       {/* Hero Section */}
       <section className="pt-32 md:pt-48 pb-20 md:pb-40 px-6 max-w-[1024px] mx-auto relative z-10">
         <div className="flex flex-col md:flex-row items-center md:items-end gap-8 md:gap-16">
-          {/* Image/Floating Cards Section */}
           <div className="w-full md:w-auto flex justify-center md:justify-end order-1 md:order-2 relative md:-mt-24">
             <div className="relative w-64 h-64 md:w-80 md:h-80 transform md:rotate-3 hover:rotate-0 transition-transform duration-700 ease-out">
               <div className="absolute bottom-0 left-0 right-0 h-[85%] bg-white/40 backdrop-blur-xl rounded-[40px] border border-white/60 shadow-[0_30px_60px_-12px_rgba(0,0,0,0.1)] z-0"></div>
@@ -1061,7 +894,7 @@ export default function App() {
                     <span className="text-xs font-bold text-[#1d1d1f] leading-none">
                       {data.title}
                     </span>
-                    <span className="text-[8px] text-[#86868b] font-bold uppercase tracking-wider leading-none mt-1">
+                    <span className="text-[8px] text-[#424245] font-bold uppercase tracking-wider leading-none mt-1">
                       {data.subtitle}
                     </span>
                   </div>
@@ -1070,7 +903,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Text Section - FIXED: Removed reveal-wrapper/is-visible class from the main text container to force immediate display */}
           <div className="flex-1 flex flex-col items-start text-left z-10 order-2 md:order-1 w-full md:w-auto" > 
             <div
               className="hero-text-entry inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/60 backdrop-blur-md border border-black/5 shadow-sm mb-6 md:mb-8 cursor-default hover:scale-105 transition-transform"
@@ -1288,7 +1120,12 @@ export default function App() {
             <div className="mb-6 md:mb-0">
               <SectionHeader en="Selected Works" cn="精选作品" />
             </div>
-            <div className="flex w-full md:w-auto md:min-w-[320px] p-1 rounded-full justify-between md:justify-start overflow-x-auto no-scrollbar liquid-control-base">
+            {/* NEW LIQUID: Work Filter Tabs */}
+            <LiquidGlass
+                {...LIQUID_PROPS}
+                className="flex w-full md:w-auto md:min-w-[320px] p-1 rounded-full justify-between md:justify-start overflow-x-auto no-scrollbar"
+                style={{ borderRadius: '9999px' }}
+            >
               {[
                 { id: "all", label: "全部" },
                 { id: "graphic", label: "平面" },
@@ -1309,7 +1146,7 @@ export default function App() {
                   {tab.label}
                 </button>
               ))}
-            </div>
+            </LiquidGlass>
           </div>
 
           <div className="flex gap-6 w-full items-start">
@@ -1370,7 +1207,12 @@ export default function App() {
                           </div>
                         )}
                       </div>
-                      <div className="relative z-20 flex flex-col justify-between flex-1 p-6 bg-gradient-to-b from-white/70 to-white/90 backdrop-blur-xl border-t border-white/40">
+                      
+                      {/* --- Works Card Footer (Background Opacity 80%) --- */}
+                      <div 
+                        className="relative z-20 flex flex-col justify-between flex-1 p-6 border-t border-white/40 bg-white/80 backdrop-blur-md"
+                        style={{ borderRadius: '0 0 32px 32px' }}
+                      >
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex flex-col items-start w-full min-w-0">
                             <div className="flex items-center mb-2 opacity-80">
@@ -1426,10 +1268,26 @@ export default function App() {
                         </div>
                       </div>
                       <div className="self-start md:self-auto shrink-0">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/50 border border-blue-100/50 text-[#0071e3] text-xs font-semibold backdrop-blur-sm">
+                        {/* NEW LIQUID: Experience Date Badge */}
+                        <LiquidGlass
+                            glassThickness={15}
+                            bezelWidth={3}
+                            refractiveIndex={1.2}
+                            blur={1}
+                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold"
+                            style={{ 
+                                borderRadius: '9999px',
+                                // Original fallback styles
+                                backgroundColor: 'rgba(239, 246, 255, 0.5)',
+                                color: '#0071e3',
+                                border: '1px solid rgba(219, 234, 254, 0.5)',
+                                backdropFilter: 'blur(8px)',
+                                WebkitBackdropFilter: 'blur(8px)'
+                            }}
+                        >
                           <Calendar size={12} className="opacity-80" />
                           {exp.time}
-                        </div>
+                        </LiquidGlass>
                       </div>
                     </div>
                     <div className="space-y-2 mb-6">
@@ -1509,12 +1367,20 @@ export default function App() {
       {/* Mobile Floating CTA */}
       {!mobileMenuOpen && (
         <div className="md:hidden fixed bottom-6 right-6 z-40 animate-fade-in">
-          <a
-            href="#contact"
-            className="flex items-center gap-2 px-5 py-3 rounded-full text-white shadow-[0_8px_20px_rgba(0,113,227,0.3)] hover:scale-105 active:scale-95 transition-all font-semibold text-sm backdrop-blur-sm border border-white/10 liquid-glass-btn"
-          >
-            <MessageCircle size={18} />
-            <span>合作咨询</span>
+          <a href="#contact" className="block relative">
+            {/* Fixed Mobile Button: Ensures flex layout and correct styles */}
+            <LiquidGlass 
+                {...LIQUID_PROPS}
+                glassColor="rgba(0, 113, 227, 0.9)"
+                className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold text-white shadow-[0_8px_20px_rgba(0,122,255,0.35),inset_0_1px_1px_rgba(255,255,255,0.8)]"
+                style={{
+                    borderRadius: '9999px',
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                }}
+            >
+                <MessageCircle size={18} />
+                <span>合作咨询</span>
+            </LiquidGlass>
           </a>
         </div>
       )}
@@ -1529,10 +1395,25 @@ export default function App() {
 
           <div className="relative w-full md:max-w-4xl h-full md:h-[90vh] bg-white rounded-none md:rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-scale-in">
             <button
-              onClick={() => setModalItem(null)}
-              className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 md:absolute md:top-6 md:right-6 md:bottom-auto md:left-auto md:translate-x-0 w-12 h-12 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:bg-white/90 transition-all shadow-lg md:shadow-sm text-[#1d1d1f] ring-1 ring-white/30 liquid-control-base"
+                onClick={() => setModalItem(null)}
+                className="fixed z-50 bottom-8 left-1/2 -translate-x-1/2 md:absolute md:top-6 md:right-6 md:bottom-auto md:left-auto md:translate-x-0 outline-none"
             >
-              <X size={20} />
+                {/* FIXED Close Button: Consistent Translucent White Liquid Effect (Like Navbar) */}
+                <LiquidGlass 
+                    {...LIQUID_PROPS}
+                    glassThickness={20}
+                    bezelWidth={4}
+                    // Removed glassColor to inherit translucent white body from LIQUID_PROPS.opacity
+                    className="w-12 h-12 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:bg-white/90 transition-all shadow-lg md:shadow-sm text-[#1d1d1f]" // Changed text color to dark
+                    style={{ 
+                        borderRadius: '9999px',
+                        // Adjusted shadow to be generic/neutral to match white glass
+                        border: "1px solid rgba(255, 255, 255, 0.5)",
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.8)",
+                    }}
+                >
+                    <X size={20} />
+                </LiquidGlass>
             </button>
 
             <div className="flex-1 overflow-y-auto no-scrollbar relative bg-white">
@@ -1557,7 +1438,12 @@ export default function App() {
               </div>
 
               <div className="px-4 md:px-12 relative -mt-20 md:-mt-32 z-30">
-                <div className="liquid-control-base rounded-[24px] p-6 md:p-8 mb-10">
+                {/* --- Information Island Liquid Glass --- */}
+                <LiquidGlass 
+                    {...LIQUID_PROPS}
+                    className="rounded-[24px] p-6 md:p-8 mb-10"
+                    style={{ borderRadius: '24px' }}
+                >
                   <div className="flex flex-col md:flex-row md:items-start gap-8 justify-between">
                     <div className="w-full md:w-[60%]">
                       <div className="flex items-center gap-2 mb-3">
@@ -1620,7 +1506,7 @@ export default function App() {
                         "在逻辑与美学之间寻找平衡，构建清晰且有温度的视觉叙事。通过对色彩、排版和留白的精确控制，我们实现了视觉上的平衡与信息的高效传递。"}
                     </p>
                   </div>
-                </div>
+                </LiquidGlass>
               </div>
 
               <div className="px-0 md:px-12 pb-32 flex flex-col w-full max-w-5xl mx-auto items-center">
