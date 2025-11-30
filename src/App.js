@@ -439,7 +439,7 @@ const LiquidGlass = ({
             void el.offsetHeight; 
             el.style.backdropFilter = `url(#${filterId})`;
             
-            // FIX: Use setProperty to avoid compilation error with TypeScript type checking
+            // FIXED: Use standard setProperty instead of type casting
             el.style.setProperty('-webkit-backdrop-filter', `url(#${filterId})`);
         };
 
@@ -1404,11 +1404,16 @@ export default function App() {
                     {...LIQUID_PROPS}
                     glassThickness={20}
                     bezelWidth={4}
-                    glassColor="rgba(0, 113, 227, 0.9)" // Set Blue Color
+                    // Removed glassColor to inherit translucent white body from LIQUID_PROPS.opacity
                     className="w-12 h-12 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:bg-white/90 transition-all shadow-lg md:shadow-sm text-[#1d1d1f] ring-1 ring-white/30"
-                    style={{ borderRadius: '9999px' }}
+                    style={{ 
+                        borderRadius: '9999px',
+                        // Adjusted shadow to be generic/neutral to match white glass
+                        border: "1px solid rgba(255, 255, 255, 0.5)",
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.8)",
+                    }}
                 >
-                    <X size={20} className="text-white" /> {/* Icon White */}
+                    <X size={20} />
                 </LiquidGlass>
             </button>
 
