@@ -388,9 +388,22 @@ const LiquidGlass = ({
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
+        const ua = navigator.userAgent;
+        
+        // 1. Check basic CSS support
         const supportsBackdrop = CSS.supports('backdrop-filter', 'blur(10px)');
-        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        if (!supportsBackdrop || isSafari) {
+        
+        // 2. Check for Safari (WebKit)
+        const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+        
+        // 3. Check for WeChat (MicroMessenger) - CRITICAL FIX
+        const isWeChat = /MicroMessenger/i.test(ua);
+
+        // 4. Check for iOS Chrome (CriOS) - Uses WebKit, safer to fallback
+        const isIOSChrome = /CriOS/i.test(ua);
+
+        // If any of these are true, force fallback to basic blur
+        if (!supportsBackdrop || isSafari || isWeChat || isIOSChrome) {
             setIsSupported(false);
         }
     }, []);
